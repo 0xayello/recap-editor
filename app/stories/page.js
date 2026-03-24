@@ -5,13 +5,10 @@ export default function StoriesPage() {
     <iframe
       src="/stories-editor.html"
       style={{
-        position: 'fixed',
-        inset: 0,
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        height: 'calc(100vh - 40px)',
         border: 'none',
-        margin: 0,
-        padding: 0,
+        display: 'block',
       }}
       title="Bom Digma Stories Editor"
     />
