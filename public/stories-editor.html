@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bom Digma · Stories Editor (Fabric.js)</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg:#0c0c0f; --panel:#16161a; --border:#2a2a30;
+  --accent:#F7941D; --red:#E53935; --text:#e0e0e0; --muted:#666;
+}
+body { background:var(--bg); color:var(--text); font-family:'Space Grotesk',sans-serif; height:100vh; overflow:hidden; display:flex; flex-direction:column; }
+
+/* TOP BAR */
+.topbar { height:52px; background:var(--panel); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 16px; gap:10px; flex-shrink:0; z-index:100; }
+.tlogo { font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700; color:var(--accent); white-space:nowrap; }
+.tdiv { width:1px; height:22px; background:var(--border); flex-shrink:0; }
+.snav { display:flex; gap:4px; overflow-x:auto; }
+.snav::-webkit-scrollbar { display:none; }
+.snav button { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text); font-size:11px; padding:4px 9px; border-radius:6px; cursor:pointer; font-family:'Space Grotesk',sans-serif; white-space:nowrap; transition:.15s; }
+.snav button:hover { background:rgba(255,255,255,0.12); }
+.snav button.on { background:var(--accent); color:#000; border-color:var(--accent); font-weight:700; }
+.topactions { margin-left:auto; display:flex; gap:8px; align-items:center; }
+.expbtn { background:var(--accent); color:#000; font-weight:700; font-size:12px; padding:6px 14px; border-radius:7px; border:none; cursor:pointer; font-family:'Space Grotesk',sans-serif; white-space:nowrap; }
+.expbtn:hover { filter:brightness(1.1); }
+.expall { background:rgba(247,148,29,0.15); color:var(--accent); font-weight:600; font-size:12px; padding:6px 14px; border-radius:7px; border:1px solid rgba(247,148,29,0.3); cursor:pointer; font-family:'Space Grotesk',sans-serif; white-space:nowrap; }
+.expall:hover { background:rgba(247,148,29,0.25); }
+
+/* WORKSPACE */
+.ws { display:flex; flex:1; overflow:hidden; }
+
+/* SIDEBAR */
+.sidebar { width:260px; background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; flex-shrink:0; }
+.sidebar::-webkit-scrollbar { width:3px; }
+.sidebar::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+.sec { padding:13px 14px; border-bottom:1px solid var(--border); }
+.slbl { font-size:9px; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted); margin-bottom:9px; display:block; }
+.hint-idle { padding:18px 14px; font-size:12px; color:var(--muted); line-height:1.7; }
+select.ctrl { width:100%; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text); font-size:12px; padding:7px 9px; border-radius:7px; outline:none; cursor:pointer; font-family:'Space Grotesk',sans-serif; }
+input.ctrl { width:100%; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text); font-size:12px; padding:7px 9px; border-radius:7px; outline:none; font-family:'Space Grotesk',sans-serif; }
+input.ctrl:focus, select.ctrl:focus { border-color:var(--accent); }
+.row { display:flex; align-items:center; gap:8px; margin-top:7px; }
+.row .lbl { font-size:11px; color:var(--muted); min-width:52px; }
+input[type=range].sl { flex:1; height:3px; -webkit-appearance:none; background:var(--border); border-radius:3px; outline:none; cursor:pointer; }
+input[type=range].sl::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:var(--accent); cursor:pointer; }
+.val { font-size:11px; color:var(--muted); min-width:34px; text-align:right; }
+.btnrow { display:flex; gap:5px; margin-top:7px; }
+.tbtn { flex:1; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text); font-size:12px; padding:6px 4px; border-radius:6px; cursor:pointer; font-family:'Space Grotesk',sans-serif; transition:.15s; text-align:center; }
+.tbtn:hover { background:rgba(255,255,255,0.1); }
+.tbtn.on { background:rgba(247,148,29,0.18); border-color:rgba(247,148,29,0.45); color:var(--accent); }
+input[type=color].cpick { width:32px; height:26px; border:1px solid var(--border); border-radius:5px; padding:2px; background:transparent; cursor:pointer; }
+.swatches { display:flex; gap:5px; flex-wrap:wrap; margin-top:8px; }
+.sw { width:26px; height:26px; border-radius:5px; cursor:pointer; border:2px solid transparent; transition:.12s; }
+.sw:hover,.sw.on { border-color:var(--accent); transform:scale(1.1); }
+.addbtn { width:100%; background:rgba(247,148,29,0.1); border:1px dashed rgba(247,148,29,0.3); color:var(--accent); font-size:12px; padding:8px; border-radius:7px; cursor:pointer; font-family:'Space Grotesk',sans-serif; margin-top:8px; }
+.addbtn:hover { background:rgba(247,148,29,0.2); }
+.delbtn { width:100%; background:rgba(229,57,53,0.1); border:1px solid rgba(229,57,53,0.3); color:var(--red); font-size:11px; padding:6px; border-radius:7px; cursor:pointer; font-family:'Space Grotesk',sans-serif; margin-top:6px; }
+.delbtn:hover { background:rgba(229,57,53,0.2); }
+
+/* CANVAS AREA */
+.canvas-area { flex:1; display:flex; align-items:center; justify-content:center; overflow:auto; padding:20px; background:var(--bg); position:relative; }
+.canvas-wrap { position:relative; flex-shrink:0; border-radius:20px; overflow:hidden; box-shadow:0 0 0 1px rgba(255,255,255,0.07), 0 28px 70px rgba(0,0,0,0.9); }
+
+/* MINIMAP */
+.minimap { width:110px; background:var(--panel); border-left:1px solid var(--border); display:flex; flex-direction:column; gap:6px; padding:10px 8px; overflow-y:auto; flex-shrink:0; }
+.minimap::-webkit-scrollbar { display:none; }
+.mthumb { width:94px; height:167px; border-radius:8px; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:.13s; flex-shrink:0; position:relative; }
+.mthumb:hover { border-color:rgba(247,148,29,.4); }
+.mthumb.on { border-color:var(--accent); }
+.mthumb canvas { width:100% !important; height:100% !important; }
+.mlabel { position:absolute; bottom:4px; left:50%; transform:translateX(-50%); font-size:8px; color:rgba(255,255,255,.5); white-space:nowrap; pointer-events:none; background:rgba(0,0,0,.6); padding:1px 6px; border-radius:4px; }
+
+/* Status bar */
+.statusbar { height:28px; background:var(--panel); border-top:1px solid var(--border); display:flex; align-items:center; padding:0 16px; font-size:10px; color:var(--muted); gap:16px; flex-shrink:0; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tlogo">☀️ Stories Editor</div>
+  <div class="tdiv"></div>
+  <div class="snav" id="snav"></div>
+  <div class="topactions">
+    <button class="expall" onclick="exportAll()">⬇ Exportar Todos</button>
+    <button class="expbtn" onclick="exportCurrent()">⬇ Exportar Slide</button>
+  </div>
+</div>
+
+<div class="ws">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="hint-idle" id="hintIdle">
+      Selecione um elemento no canvas para editar suas propriedades.<br><br>
+      <b>Dicas:</b><br>
+      • Duplo-clique para editar texto<br>
+      • Arraste para mover<br>
+      • Handles para redimensionar<br>
+      • Delete/Backspace para remover
+    </div>
+    <div id="propsPanel" style="display:none">
+      <!-- TEXT PROPS -->
+      <div class="sec" id="secText">
+        <span class="slbl">Texto</span>
+        <textarea id="propText" class="ctrl" rows="3" style="resize:vertical"></textarea>
+      </div>
+      <div class="sec" id="secFont">
+        <span class="slbl">Tipografia</span>
+        <select id="propFont" class="ctrl">
+          <option value="Space Grotesk">Space Grotesk</option>
+          <option value="Georgia, serif">Georgia (Serif)</option>
+        </select>
+        <div class="row">
+          <span class="lbl">Tamanho</span>
+          <input type="range" class="sl" id="propSize" min="12" max="120" value="32">
+          <span class="val" id="propSizeVal">32</span>
+        </div>
+        <div class="row">
+          <span class="lbl">Peso</span>
+          <select id="propWeight" class="ctrl" style="width:auto;flex:1">
+            <option value="300">Light</option>
+            <option value="400">Regular</option>
+            <option value="500">Medium</option>
+            <option value="600">Semibold</option>
+            <option value="700">Bold</option>
+          </select>
+        </div>
+        <div class="row">
+          <span class="lbl">Entrelinha</span>
+          <input type="range" class="sl" id="propLineH" min="0.8" max="2.5" step="0.05" value="1.2">
+          <span class="val" id="propLineHVal">1.2</span>
+        </div>
+        <div class="btnrow">
+          <button class="tbtn" data-align="left">⬅</button>
+          <button class="tbtn" data-align="center">⬌</button>
+          <button class="tbtn" data-align="right">➡</button>
+        </div>
+      </div>
+      <!-- COLORS -->
+      <div class="sec">
+        <span class="slbl">Cor do Texto</span>
+        <div class="row">
+          <input type="color" class="cpick" id="propColor" value="#ffffff">
+          <span class="val" id="propColorHex">#ffffff</span>
+        </div>
+        <div class="swatches">
+          <div class="sw" style="background:#FFFFFF" data-color="#FFFFFF"></div>
+          <div class="sw" style="background:#F7941D" data-color="#F7941D"></div>
+          <div class="sw" style="background:#E53935" data-color="#E53935"></div>
+          <div class="sw" style="background:#000000;border:1px solid #333" data-color="#000000"></div>
+          <div class="sw" style="background:#1a1a1a" data-color="#1a1a1a"></div>
+          <div class="sw" style="background:#888888" data-color="#888888"></div>
+        </div>
+      </div>
+      <!-- BG -->
+      <div class="sec" id="secBg">
+        <span class="slbl">Fundo do Elemento</span>
+        <div class="row">
+          <input type="color" class="cpick" id="propBg" value="#000000">
+          <span class="val" id="propBgHex">#000000</span>
+          <button class="tbtn" style="flex:0;padding:6px 10px;font-size:11px" id="propBgNone">Sem fundo</button>
+        </div>
+        <div class="row">
+          <span class="lbl">Padding</span>
+          <input type="range" class="sl" id="propPad" min="0" max="60" value="16">
+          <span class="val" id="propPadVal">16</span>
+        </div>
+        <div class="row">
+          <span class="lbl">Radius</span>
+          <input type="range" class="sl" id="propRadius" min="0" max="40" value="14">
+          <span class="val" id="propRadiusVal">14</span>
+        </div>
+      </div>
+      <!-- OPACITY -->
+      <div class="sec">
+        <span class="slbl">Opacidade</span>
+        <div class="row">
+          <input type="range" class="sl" id="propOpacity" min="0" max="1" step="0.05" value="1">
+          <span class="val" id="propOpacityVal">100%</span>
+        </div>
+      </div>
+      <!-- POSITION -->
+      <div class="sec">
+        <span class="slbl">Posição</span>
+        <div class="row">
+          <span class="lbl">X</span>
+          <input type="number" class="ctrl" id="propX" style="width:70px">
+          <span class="lbl">Y</span>
+          <input type="number" class="ctrl" id="propY" style="width:70px">
+        </div>
+        <div class="row">
+          <span class="lbl">Larg.</span>
+          <input type="number" class="ctrl" id="propW" style="width:70px">
+        </div>
+      </div>
+      <!-- ACTIONS -->
+      <div class="sec">
+        <button class="addbtn" onclick="duplicateSelected()">⧉ Duplicar Elemento</button>
+        <button class="delbtn" onclick="deleteSelected()">🗑 Remover Elemento</button>
+      </div>
+    </div>
+    <!-- SLIDE BG -->
+    <div class="sec">
+      <span class="slbl">Fundo do Slide</span>
+      <div class="row">
+        <input type="color" class="cpick" id="slideBg" value="#000000">
+        <span class="val" id="slideBgHex">#000000</span>
+      </div>
+      <div class="swatches">
+        <div class="sw slidebgsw" style="background:#000000;border:1px solid #333" data-color="#000000"></div>
+        <div class="sw slidebgsw" style="background:#0a0a0a" data-color="#0a0a0a"></div>
+        <div class="sw slidebgsw" style="background:#0d1117" data-color="#0d1117"></div>
+        <div class="sw slidebgsw" style="background:#111111" data-color="#111111"></div>
+        <div class="sw slidebgsw" style="background:#FFFFFF" data-color="#FFFFFF"></div>
+        <div class="sw slidebgsw" style="background:#F7941D" data-color="#F7941D"></div>
+      </div>
+    </div>
+    <!-- ADD ELEMENTS -->
+    <div class="sec">
+      <span class="slbl">Adicionar</span>
+      <button class="addbtn" onclick="addText('HEADLINE','Space Grotesk',52,700,'#FFFFFF')">+ Headline</button>
+      <button class="addbtn" onclick="addText('Corpo de texto','Space Grotesk',26,400,'#e0e0e0')">+ Body</button>
+      <button class="addbtn" onclick="addText('DESTAQUE','Space Grotesk',40,700,'#F7941D')">+ Destaque Laranja</button>
+      <button class="addbtn" onclick="addText('DADO NEGATIVO','Space Grotesk',40,700,'#E53935')">+ Destaque Vermelho</button>
+      <button class="addbtn" onclick="addImagePlaceholder(920,500)">+ Placeholder Imagem (920×500)</button>
+      <button class="addbtn" onclick="addImagePlaceholder(920,920)">+ Placeholder Imagem (920×920)</button>
+      <button class="addbtn" onclick="addImagePlaceholder(440,440)">+ Placeholder Imagem (440×440)</button>
+      <button class="addbtn" onclick="addDivider()">+ Linha Divisória</button>
+      <button class="addbtn" onclick="addBox('#F7941D',0.12)">+ Box Laranja</button>
+      <button class="addbtn" onclick="addBox('#FFFFFF',0.06)">+ Box Branco</button>
+    </div>
+  </div>
+
+  <!-- CANVAS -->
+  <div class="canvas-area">
+    <div class="canvas-wrap" id="canvasWrap">
+      <canvas id="fc"></canvas>
+    </div>
+  </div>
+
+  <!-- MINIMAP -->
+  <div class="minimap" id="minimap"></div>
+</div>
+
+<div class="statusbar">
+  <span id="statusSlide">Slide 1/7</span>
+  <span id="statusObj">Nenhum objeto selecionado</span>
+  <span style="margin-left:auto">Fabric.js · 1080×1920 · Bom Digma</span>
+</div>
+
+<script>
+// ─── CONFIG ───
+const W = 1080, H = 1920;
+const SCALE = 390 / W;
+const DW = Math.round(W * SCALE), DH = Math.round(H * SCALE);
+const F = 'Space Grotesk'; // primary font
+
+// ─── SLIDE DATA ───
+// Design rules:
+// - All text uses Space Grotesk
+// - Text centered within its block (textAlign: 'center')
+// - No bgColor on text elements — clean, floating text
+// - Image placeholders (dashed rects) where visuals go
+const SLIDES_DATA = [
+  { // Slide 1 — Hook
+    name: '1 · Hook',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:120, w:920, font:F, size:28, weight:500, color:'#F7941D', align:'center', lineH:1.1 },
+      { type:'rect', x:80, y:190, w:920, h:3, fill:'#F7941D', opacity:0.5, rx:2 },
+      // Image placeholder — logo or dramatic visual
+      { type:'placeholder', x:280, y:240, w:520, h:360, label:'IMAGEM\nResolv logo / visual' },
+      { type:'text', text:'RESOLV LABS', x:80, y:650, w:920, font:F, size:72, weight:700, color:'#FFFFFF', align:'center', lineH:1.0 },
+      { type:'text', text:'18× auditada\nU$80M mintados do nada', x:80, y:800, w:920, font:F, size:38, weight:600, color:'#F7941D', align:'center', lineH:1.35 },
+      { type:'rect', x:340, y:980, w:400, h:3, fill:'rgba(255,255,255,0.15)', opacity:1, rx:2 },
+      { type:'text', text:'Como um hacker explorou\no protocolo mais auditado do mercado\n— e o que isso ensina sobre risco real.', x:80, y:1040, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'text', text:'↑ SWIPE PARA LER', x:80, y:1720, w:920, font:F, size:22, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 2 — Resolv
+    name: '2 · Resolv',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'O QUE É A', x:80, y:140, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.2 },
+      { type:'text', text:'RESOLV', x:80, y:190, w:920, font:F, size:80, weight:700, color:'#FFFFFF', align:'center', lineH:1.0 },
+      { type:'rect', x:340, y:330, w:400, h:3, fill:'rgba(255,255,255,0.12)', opacity:1, rx:2 },
+      // Image placeholder
+      { type:'placeholder', x:180, y:380, w:720, h:300, label:'IMAGEM\nDiagrama USR/RLP' },
+      { type:'text', text:'Stablecoin $USR\nlastreada em delta-neutral\nETH strategies', x:80, y:730, w:920, font:F, size:30, weight:400, color:'#e0e0e0', align:'center', lineH:1.5 },
+      { type:'text', text:'$RLP', x:80, y:960, w:920, font:F, size:52, weight:700, color:'#F7941D', align:'center', lineH:1.1 },
+      { type:'text', text:'Token de risco que absorve\nvolatilidade e paga yield', x:80, y:1050, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.55)', align:'center', lineH:1.45 },
+      { type:'rect', x:340, y:1200, w:400, h:2, fill:'rgba(255,255,255,0.1)', opacity:1, rx:1 },
+      { type:'text', text:'BACKERS', x:80, y:1240, w:920, font:F, size:20, weight:600, color:'rgba(255,255,255,0.35)', align:'center', lineH:1.2 },
+      { type:'text', text:'Binance Labs · Coinbase Ventures\nFramework · Delphi', x:80, y:1300, w:920, font:F, size:28, weight:600, color:'#F7941D', align:'center', lineH:1.5 },
+      { type:'text', text:'TVL pré-hack: ~U$320M', x:80, y:1500, w:920, font:F, size:30, weight:500, color:'rgba(255,255,255,0.25)', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 3 — Ataque
+    name: '3 · Ataque',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'O ATAQUE', x:80, y:140, w:920, font:F, size:72, weight:700, color:'#E53935', align:'center', lineH:1.0 },
+      { type:'text', text:'Domingo, 2h da manhã UTC', x:80, y:260, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.35)', align:'center', lineH:1.2 },
+      { type:'rect', x:200, y:330, w:680, h:3, fill:'#E53935', opacity:0.5, rx:2 },
+      // Image placeholder — attack diagram
+      { type:'placeholder', x:140, y:380, w:800, h:280, label:'IMAGEM\nDiagrama do ataque' },
+      { type:'text', text:'1', x:80, y:720, w:920, font:F, size:56, weight:700, color:'#E53935', align:'center', lineH:1.0 },
+      { type:'text', text:'Comprometimento da carteira\ndo operador com acesso ao mint', x:80, y:800, w:920, font:F, size:26, weight:400, color:'#e0e0e0', align:'center', lineH:1.45 },
+      { type:'text', text:'2', x:80, y:960, w:920, font:F, size:56, weight:700, color:'#E53935', align:'center', lineH:1.0 },
+      { type:'text', text:'Mint de ~U$80M em $USR\nsem colateral depositado', x:80, y:1040, w:920, font:F, size:26, weight:400, color:'#e0e0e0', align:'center', lineH:1.45 },
+      { type:'text', text:'3', x:80, y:1200, w:920, font:F, size:56, weight:700, color:'#E53935', align:'center', lineH:1.0 },
+      { type:'text', text:'Venda massiva nas DEXes\nCurve · Uniswap · Balancer\nDrained em minutos', x:80, y:1280, w:920, font:F, size:26, weight:400, color:'#e0e0e0', align:'center', lineH:1.45 },
+      { type:'text', text:'Tudo em menos de 20 minutos', x:80, y:1560, w:920, font:F, size:32, weight:600, color:'rgba(229,57,53,0.5)', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 4 — Estrago
+    name: '4 · Estrago',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'O ESTRAGO', x:80, y:140, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.0 },
+      { type:'rect', x:200, y:270, w:680, h:3, fill:'#E53935', opacity:0.8, rx:2 },
+      // Image placeholder — chart
+      { type:'placeholder', x:140, y:320, w:800, h:320, label:'IMAGEM\nGráfico de queda USR/RLP' },
+      { type:'text', text:'$USR', x:80, y:700, w:440, font:F, size:44, weight:700, color:'#FFFFFF', align:'center', lineH:1.0 },
+      { type:'text', text:'−75%', x:560, y:700, w:440, font:F, size:64, weight:700, color:'#E53935', align:'center', lineH:1.0 },
+      { type:'rect', x:200, y:830, w:680, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
+      { type:'text', text:'$RLP', x:80, y:880, w:440, font:F, size:44, weight:700, color:'#FFFFFF', align:'center', lineH:1.0 },
+      { type:'text', text:'−40%', x:560, y:880, w:440, font:F, size:64, weight:700, color:'#E53935', align:'center', lineH:1.0 },
+      { type:'rect', x:200, y:1020, w:680, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
+      { type:'text', text:'CASCATA DE LIQUIDAÇÕES', x:80, y:1080, w:920, font:F, size:24, weight:600, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.2 },
+      { type:'text', text:'Morpho — vaults comprometidos\nGauntlet — exposição direta\nRe7Labs — perdas significativas', x:80, y:1150, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.55)', align:'center', lineH:1.6 },
+    ]
+  },
+  { // Slide 5 — Por quê
+    name: '5 · Por quê',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'POR QUÊ', x:80, y:140, w:920, font:F, size:72, weight:700, color:'#F7941D', align:'center', lineH:1.0 },
+      { type:'text', text:'3 falhas que 18 auditorias\nnão pegaram', x:80, y:270, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.45)', align:'center', lineH:1.4 },
+      { type:'rect', x:200, y:390, w:680, h:3, fill:'#F7941D', opacity:0.35, rx:2 },
+      // Placeholder for infographic
+      { type:'placeholder', x:140, y:440, w:800, h:260, label:'IMAGEM\nInfográfico das 3 falhas' },
+      { type:'text', text:'01', x:80, y:760, w:920, font:F, size:48, weight:700, color:'#F7941D', align:'center', lineH:1.0 },
+      { type:'text', text:'Privileged access sem timelock\nO operador podia mintar diretamente\nsem delay, sem multisig, sem governança', x:80, y:840, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'text', text:'02', x:80, y:1060, w:920, font:F, size:48, weight:700, color:'#F7941D', align:'center', lineH:1.0 },
+      { type:'text', text:'Auditorias focaram apenas\nem lógica de smart contract', x:80, y:1140, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'text', text:'03', x:80, y:1320, w:920, font:F, size:48, weight:700, color:'#F7941D', align:'center', lineH:1.0 },
+      { type:'text', text:'Sem monitoramento on-chain\nem tempo real', x:80, y:1400, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+    ]
+  },
+  { // Slide 6 — Lição
+    name: '6 · Lição',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'O QUE FAZER', x:80, y:140, w:920, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.0 },
+      { type:'text', text:'3 recomendações práticas', x:80, y:260, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.35)', align:'center', lineH:1.2 },
+      { type:'rect', x:200, y:330, w:680, h:3, fill:'#F7941D', opacity:0.5, rx:2 },
+      // Placeholder
+      { type:'placeholder', x:240, y:380, w:600, h:220, label:'IMAGEM\nIcons das 3 recomendações' },
+      { type:'text', text:'① Diversifique stablecoins', x:80, y:660, w:920, font:F, size:36, weight:700, color:'#F7941D', align:'center', lineH:1.2 },
+      { type:'text', text:'Não concentre em um protocolo\nmesmo "auditado"', x:80, y:740, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.5)', align:'center', lineH:1.45 },
+      { type:'text', text:'② Cheque permissões', x:80, y:920, w:920, font:F, size:36, weight:700, color:'#F7941D', align:'center', lineH:1.2 },
+      { type:'text', text:'Quem pode mintar?\nTem timelock? Multisig?', x:80, y:1000, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.5)', align:'center', lineH:1.45 },
+      { type:'text', text:'③ Monitore on-chain', x:80, y:1180, w:920, font:F, size:36, weight:700, color:'#F7941D', align:'center', lineH:1.2 },
+      { type:'text', text:'Use alertas de De.Fi,\nForta ou Hypernative', x:80, y:1260, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.5)', align:'center', lineH:1.45 },
+    ]
+  },
+  { // Slide 7 — CTA
+    name: '7 · CTA',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'☀️', x:80, y:280, w:920, font:F, size:80, weight:400, color:'#FFFFFF', align:'center', lineH:1.0 },
+      { type:'text', text:'BOM DIGMA', x:80, y:460, w:920, font:F, size:72, weight:700, color:'#F7941D', align:'center', lineH:1.0 },
+      { type:'text', text:'A newsletter cripto que\nvocê lê em 5 minutos\ne aplica na hora.', x:80, y:600, w:920, font:F, size:30, weight:400, color:'rgba(255,255,255,0.65)', align:'center', lineH:1.5 },
+      { type:'rect', x:340, y:830, w:400, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      // Substack card placeholder
+      { type:'placeholder', x:190, y:880, w:700, h:340, label:'IMAGEM\nCard Substack Bom Digma' },
+      { type:'text', text:'Link na bio ↗', x:80, y:1360, w:920, font:F, size:32, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  }
+];
+
+// ─── STATE ───
+let currentSlide = 0;
+let slidesState = [];
+let canvas;
+let updatingProps = false;
+
+// ─── INIT ───
+window.addEventListener('load', () => {
+  canvas = new fabric.Canvas('fc', {
+    width: DW,
+    height: DH,
+    backgroundColor: '#000000',
+    selection: true,
+    preserveObjectStacking: true,
+  });
+
+  fabric.Object.prototype.set({
+    borderColor: '#F7941D',
+    cornerColor: '#F7941D',
+    cornerStrokeColor: '#F7941D',
+    cornerSize: 8,
+    cornerStyle: 'circle',
+    transparentCorners: false,
+    borderScaleFactor: 2,
+    padding: 4,
+  });
+
+  SLIDES_DATA.forEach((sd) => {
+    const json = buildSlideJSON(sd);
+    slidesState.push(json);
+  });
+
+  buildNav();
+  buildMinimap();
+  loadSlide(0);
+  setupEvents();
+  setupProps();
+});
+
+function buildSlideJSON(sd) {
+  const objects = [];
+  sd.elements.forEach(el => {
+    if (el.type === 'text') {
+      objects.push({
+        type: 'textbox',
+        text: el.text,
+        left: el.x * SCALE,
+        top: el.y * SCALE,
+        width: (el.w || 920) * SCALE,
+        fontFamily: el.font || F,
+        fontSize: (el.size || 28) * SCALE,
+        fontWeight: el.weight || 400,
+        fill: el.color || '#FFFFFF',
+        textAlign: el.align || 'center',
+        lineHeight: el.lineH || 1.2,
+        splitByGrapheme: false,
+        editable: true,
+        _origSize: el.size || 28,
+        _bgColor: el.bgColor || '',
+        _padding: el.padding || 0,
+        _rx: el.rx || 0,
+      });
+    } else if (el.type === 'rect') {
+      objects.push({
+        type: 'rect',
+        left: el.x * SCALE,
+        top: el.y * SCALE,
+        width: (el.w || 920) * SCALE,
+        height: (el.h || 4) * SCALE,
+        fill: el.fill || '#F7941D',
+        opacity: el.opacity != null ? el.opacity : 1,
+        rx: (el.rx || 0) * SCALE,
+        ry: (el.rx || 0) * SCALE,
+        selectable: true,
+        hasControls: true,
+      });
+    } else if (el.type === 'placeholder') {
+      // Dashed rect + label for image areas
+      objects.push({
+        type: 'rect',
+        left: el.x * SCALE,
+        top: el.y * SCALE,
+        width: (el.w || 400) * SCALE,
+        height: (el.h || 400) * SCALE,
+        fill: 'rgba(255,255,255,0.03)',
+        stroke: 'rgba(255,255,255,0.15)',
+        strokeWidth: 2 * SCALE,
+        strokeDashArray: [8 * SCALE, 6 * SCALE],
+        rx: 12 * SCALE,
+        ry: 12 * SCALE,
+        selectable: true,
+        hasControls: true,
+        _isPlaceholder: true,
+      });
+      // Label inside placeholder
+      objects.push({
+        type: 'textbox',
+        text: el.label || 'IMAGEM',
+        left: el.x * SCALE,
+        top: (el.y + el.h / 2 - 30) * SCALE,
+        width: (el.w || 400) * SCALE,
+        fontFamily: F,
+        fontSize: 20 * SCALE,
+        fontWeight: 500,
+        fill: 'rgba(255,255,255,0.2)',
+        textAlign: 'center',
+        lineHeight: 1.4,
+        editable: true,
+        selectable: true,
+        _origSize: 20,
+        _bgColor: '',
+        _padding: 0,
+        _rx: 0,
+        _isPlaceholderLabel: true,
+      });
+    }
+  });
+  return { bg: sd.bg || '#000000', objects };
+}
+
+// ─── SLIDE MANAGEMENT ───
+function saveCurrentSlide() {
+  const objs = canvas.getObjects().map(o => {
+    const base = {
+      type: o.type,
+      left: o.left, top: o.top,
+      width: o.width, height: o.height,
+      scaleX: o.scaleX, scaleY: o.scaleY,
+      fill: o.fill, opacity: o.opacity,
+      selectable: o.selectable, hasControls: o.hasControls,
+    };
+    if (o.type === 'textbox') {
+      Object.assign(base, {
+        text: o.text, fontFamily: o.fontFamily,
+        fontSize: o.fontSize, fontWeight: o.fontWeight,
+        textAlign: o.textAlign, lineHeight: o.lineHeight,
+        editable: o.editable,
+        _origSize: o._origSize, _bgColor: o._bgColor,
+        _padding: o._padding, _rx: o._rx,
+        _isPlaceholderLabel: o._isPlaceholderLabel,
+      });
+    }
+    if (o.type === 'rect') {
+      Object.assign(base, {
+        rx: o.rx, ry: o.ry,
+        stroke: o.stroke, strokeWidth: o.strokeWidth,
+        strokeDashArray: o.strokeDashArray,
+        _isPlaceholder: o._isPlaceholder,
+      });
+    }
+    return base;
+  });
+  slidesState[currentSlide] = {
+    bg: canvas.backgroundColor,
+    objects: objs,
+  };
+}
+
+function loadSlide(idx) {
+  canvas.clear();
+  const state = slidesState[idx];
+  canvas.backgroundColor = state.bg || '#000000';
+
+  state.objects.forEach(d => {
+    let obj;
+    if (d.type === 'textbox') {
+      obj = new fabric.Textbox(d.text || '', {
+        left: d.left, top: d.top, width: d.width,
+        fontFamily: d.fontFamily || F,
+        fontSize: d.fontSize || 28 * SCALE,
+        fontWeight: d.fontWeight || 400,
+        fill: d.fill || '#FFFFFF',
+        textAlign: d.textAlign || 'center',
+        lineHeight: d.lineHeight || 1.2,
+        opacity: d.opacity != null ? d.opacity : 1,
+        editable: d.editable !== false,
+        scaleX: d.scaleX || 1, scaleY: d.scaleY || 1,
+      });
+      obj._origSize = d._origSize || Math.round(obj.fontSize / SCALE);
+      obj._bgColor = d._bgColor || '';
+      obj._padding = d._padding || 0;
+      obj._rx = d._rx || 0;
+      obj._isPlaceholderLabel = d._isPlaceholderLabel || false;
+      if (obj._bgColor) applyTextBg(obj);
+    } else if (d.type === 'rect') {
+      obj = new fabric.Rect({
+        left: d.left, top: d.top,
+        width: d.width, height: d.height,
+        fill: d.fill || '#FFFFFF',
+        opacity: d.opacity != null ? d.opacity : 1,
+        rx: d.rx || 0, ry: d.ry || 0,
+        stroke: d.stroke || null,
+        strokeWidth: d.strokeWidth || 0,
+        strokeDashArray: d.strokeDashArray || null,
+        scaleX: d.scaleX || 1, scaleY: d.scaleY || 1,
+        selectable: d.selectable !== false,
+        hasControls: d.hasControls !== false,
+      });
+      obj._isPlaceholder = d._isPlaceholder || false;
+    }
+    if (obj) canvas.add(obj);
+  });
+
+  canvas.renderAll();
+  currentSlide = idx;
+  updateNav();
+  updateMinimap();
+  updateSlideBgPicker();
+  document.getElementById('statusSlide').textContent = `Slide ${idx+1}/${SLIDES_DATA.length}`;
+  canvas.discardActiveObject();
+  hideProps();
+}
+
+function applyTextBg(obj) {
+  const bgCol = obj._bgColor;
+  const pad = (obj._padding || 0) * SCALE;
+  const rx = (obj._rx || 0) * SCALE;
+  obj.set('dirty', true);
+  obj._renderBackground = function(ctx) {
+    if (!bgCol) return;
+    ctx.save();
+    const w = this.width + pad * 2;
+    const h = this.height + pad * 2;
+    const x = -this.width / 2 - pad;
+    const y = -this.height / 2 - pad;
+    ctx.beginPath();
+    if (rx > 0) { ctx.roundRect(x, y, w, h, rx); } else { ctx.rect(x, y, w, h); }
+    ctx.fillStyle = bgCol;
+    ctx.fill();
+    ctx.restore();
+  };
+}
+
+// ─── NAV ───
+function buildNav() {
+  const nav = document.getElementById('snav');
+  nav.innerHTML = '';
+  SLIDES_DATA.forEach((sd, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = sd.name;
+    btn.onclick = () => { saveCurrentSlide(); loadSlide(i); };
+    nav.appendChild(btn);
+  });
+}
+function updateNav() {
+  document.querySelectorAll('#snav button').forEach((b, i) => b.classList.toggle('on', i === currentSlide));
+}
+
+// ─── MINIMAP ───
+function buildMinimap() {
+  const mm = document.getElementById('minimap');
+  mm.innerHTML = '';
+  SLIDES_DATA.forEach((sd, i) => {
+    const div = document.createElement('div');
+    div.className = 'mthumb' + (i === 0 ? ' on' : '');
+    div.onclick = () => { saveCurrentSlide(); loadSlide(i); };
+    const label = document.createElement('div');
+    label.className = 'mlabel';
+    label.textContent = sd.name;
+    div.appendChild(label);
+    div.style.background = sd.bg || '#000';
+    mm.appendChild(div);
+  });
+}
+function updateMinimap() {
+  document.querySelectorAll('.mthumb').forEach((t, i) => {
+    t.classList.toggle('on', i === currentSlide);
+    t.style.background = slidesState[i]?.bg || '#000';
+  });
+}
+
+// ─── PROPS PANEL ───
+function setupProps() {
+  document.getElementById('propText').addEventListener('input', (e) => {
+    if (updatingProps) return;
+    const obj = canvas.getActiveObject();
+    if (obj && obj.type === 'textbox') { obj.set('text', e.target.value); canvas.renderAll(); }
+  });
+  document.getElementById('propFont').addEventListener('change', (e) => {
+    if (updatingProps) return;
+    const obj = canvas.getActiveObject();
+    if (obj && obj.type === 'textbox') { obj.set('fontFamily', e.target.value); canvas.renderAll(); }
+  });
+  document.getElementById('propSize').addEventListener('input', (e) => {
+    if (updatingProps) return;
+    const obj = canvas.getActiveObject();
+    if (obj && obj.type === 'textbox') {
+      const sz = parseInt(e.target.value);
+      obj.set('fontSize', sz * SCALE); obj._origSize = sz;
+      document.getElementById('propSizeVal').textContent = sz;
+      canvas.renderAll();
+    }
+  });
+  document.getElementById('propWeight').addEventListener('change', (e) => {
+    if (updatingProps) return;
+    const obj = canvas.getActiveObject();
+    if (obj && obj.type === 'textbox') { obj.set('fontWeight', parseInt(e.target.value)); canvas.renderAll(); }
+  });
+  document.getElementById('propLineH').addEventListener('input', (e) => {
+    if (updatingProps) return;
+    const obj = canvas.getActiveObject();
+    if (obj && obj.type === 'textbox') {
+      obj.set('lineHeight', parseFloat(e.target.value));
+      document.getElementById('propLineHVal').textContent = parseFloat(e.target.value).toFixed(2);
+      canvas.renderAll();
+    }
+  });
+  document.querySelectorAll('[data-align]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const obj = canvas.getActiveObject();
+      if (obj && obj.type === 'textbox') {
+        obj.set('textAlign', btn.dataset.align); canvas.renderAll(); updateAlignBtns(btn.dataset.align);
+      }
+    });
+  });
+  document.getElementById('propColor').addEventListener('input', (e) => {
+    if (updatingProps) return;
+    const obj = canvas.getActiveObject();
+    if (obj) { obj.set('fill', e.target.value); document.getElementById('propColorHex').textContent = e.target.value; canvas.renderAll(); }
+  });
+  document.querySelectorAll('.swatches:not(:has(.slidebgsw)) .sw').forEach(sw => {
+    sw.addEventListener('click', () => {
+      const obj = canvas.getActiveObject();
+      if (obj) {
+        const c = sw.dataset.color;
+        obj.set('fill', c);
+        document.getElementById('propColor').value = c;
+        document.getElementById('propColorHex').textContent = c;
+        canvas.renderAll();
+      }
+    });
+  });
+  document.getElementById('propBg').addEventListener('input', (e) => {
+    if (updatingProps) return;
+    const obj = canvas.getActiveObject();
+    if (obj && obj.type === 'textbox') {
+      obj._bgColor = e.target.value; applyTextBg(obj);
+      document.getElementById('propBgHex').textContent = e.target.value; canvas.renderAll();
+    } else if (obj && obj.type === 'rect') {
+      obj.set('fill', e.target.value);
+      document.getElementById('propBgHex').textContent = e.target.value; canvas.renderAll();
+    }
+  });
+  document.getElementById('propBgNone').addEventListener('click', () => {
+    const obj = canvas.getActiveObject();
+    if (obj && obj.type === 'textbox') { obj._bgColor = ''; obj._renderBackground = function() {}; canvas.renderAll(); }
+  });
+  document.getElementById('propPad').addEventListener('input', (e) => {
+    if (updatingProps) return;
+    const obj = canvas.getActiveObject();
+    if (obj && obj.type === 'textbox') { obj._padding = parseInt(e.target.value); applyTextBg(obj); document.getElementById('propPadVal').textContent = e.target.value; canvas.renderAll(); }
+  });
+  document.getElementById('propRadius').addEventListener('input', (e) => {
+    if (updatingProps) return;
+    const obj = canvas.getActiveObject();
+    if (obj) {
+      if (obj.type === 'textbox') { obj._rx = parseInt(e.target.value); applyTextBg(obj); }
+      else if (obj.type === 'rect') { const r = parseInt(e.target.value) * SCALE; obj.set({ rx: r, ry: r }); }
+      document.getElementById('propRadiusVal').textContent = e.target.value; canvas.renderAll();
+    }
+  });
+  // Opacity
+  document.getElementById('propOpacity').addEventListener('input', (e) => {
+    if (updatingProps) return;
+    const obj = canvas.getActiveObject();
+    if (obj) {
+      obj.set('opacity', parseFloat(e.target.value));
+      document.getElementById('propOpacityVal').textContent = Math.round(parseFloat(e.target.value) * 100) + '%';
+      canvas.renderAll();
+    }
+  });
+  ['propX','propY','propW'].forEach(id => {
+    document.getElementById(id).addEventListener('change', (e) => {
+      if (updatingProps) return;
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      const v = parseInt(e.target.value);
+      if (id === 'propX') obj.set('left', v * SCALE);
+      if (id === 'propY') obj.set('top', v * SCALE);
+      if (id === 'propW') obj.set('width', v * SCALE);
+      obj.setCoords(); canvas.renderAll();
+    });
+  });
+  document.getElementById('slideBg').addEventListener('input', (e) => {
+    canvas.backgroundColor = e.target.value;
+    document.getElementById('slideBgHex').textContent = e.target.value;
+    canvas.renderAll(); updateMinimap();
+  });
+  document.querySelectorAll('.slidebgsw').forEach(sw => {
+    sw.addEventListener('click', () => {
+      const c = sw.dataset.color;
+      canvas.backgroundColor = c;
+      document.getElementById('slideBg').value = c;
+      document.getElementById('slideBgHex').textContent = c;
+      canvas.renderAll(); updateMinimap();
+    });
+  });
+}
+
+function updateAlignBtns(align) {
+  document.querySelectorAll('[data-align]').forEach(b => b.classList.toggle('on', b.dataset.align === align));
+}
+
+function showProps(obj) {
+  updatingProps = true;
+  document.getElementById('hintIdle').style.display = 'none';
+  document.getElementById('propsPanel').style.display = 'block';
+  const isText = obj.type === 'textbox';
+  document.getElementById('secText').style.display = isText ? '' : 'none';
+  document.getElementById('secFont').style.display = isText ? '' : 'none';
+  if (isText) {
+    document.getElementById('propText').value = obj.text || '';
+    document.getElementById('propFont').value = obj.fontFamily || F;
+    const origSz = obj._origSize || Math.round(obj.fontSize / SCALE);
+    document.getElementById('propSize').value = origSz;
+    document.getElementById('propSizeVal').textContent = origSz;
+    document.getElementById('propWeight').value = obj.fontWeight || 400;
+    document.getElementById('propLineH').value = obj.lineHeight || 1.2;
+    document.getElementById('propLineHVal').textContent = (obj.lineHeight || 1.2).toFixed(2);
+    updateAlignBtns(obj.textAlign || 'center');
+  }
+  const fill = obj.fill || '#FFFFFF';
+  try { document.getElementById('propColor').value = fill.startsWith('#') ? fill.substring(0,7) : '#ffffff'; } catch(e) {}
+  document.getElementById('propColorHex').textContent = fill;
+  if (isText) {
+    const bg = obj._bgColor || '';
+    try { document.getElementById('propBg').value = bg.startsWith('#') ? bg : '#000000'; } catch(e) {}
+    document.getElementById('propBgHex').textContent = bg || 'nenhum';
+    document.getElementById('propPad').value = obj._padding || 0;
+    document.getElementById('propPadVal').textContent = obj._padding || 0;
+    document.getElementById('propRadius').value = obj._rx || 0;
+    document.getElementById('propRadiusVal').textContent = obj._rx || 0;
+  } else if (obj.type === 'rect') {
+    document.getElementById('propBg').value = obj.fill || '#000000';
+    document.getElementById('propBgHex').textContent = obj.fill || '#000';
+    document.getElementById('propRadius').value = Math.round((obj.rx || 0) / SCALE);
+    document.getElementById('propRadiusVal').textContent = Math.round((obj.rx || 0) / SCALE);
+  }
+  // Opacity
+  document.getElementById('propOpacity').value = obj.opacity != null ? obj.opacity : 1;
+  document.getElementById('propOpacityVal').textContent = Math.round((obj.opacity != null ? obj.opacity : 1) * 100) + '%';
+  document.getElementById('propX').value = Math.round(obj.left / SCALE);
+  document.getElementById('propY').value = Math.round(obj.top / SCALE);
+  document.getElementById('propW').value = Math.round((obj.width * (obj.scaleX || 1)) / SCALE);
+  document.getElementById('statusObj').textContent = isText ? `Textbox: "${obj.text?.substring(0,30)}..."` : `Rect: ${Math.round(obj.width/SCALE)}×${Math.round(obj.height/SCALE)}`;
+  updatingProps = false;
+}
+
+function hideProps() {
+  document.getElementById('hintIdle').style.display = '';
+  document.getElementById('propsPanel').style.display = 'none';
+  document.getElementById('statusObj').textContent = 'Nenhum objeto selecionado';
+}
+
+function updateSlideBgPicker() {
+  const bg = canvas.backgroundColor || '#000000';
+  document.getElementById('slideBg').value = bg.startsWith('#') ? bg : '#000000';
+  document.getElementById('slideBgHex').textContent = bg;
+}
+
+// ─── EVENTS ───
+function setupEvents() {
+  canvas.on('selection:created', (e) => showProps(e.selected[0]));
+  canvas.on('selection:updated', (e) => showProps(e.selected[0]));
+  canvas.on('selection:cleared', () => hideProps());
+  canvas.on('object:modified', (e) => { if (e.target) showProps(e.target); });
+  canvas.on('text:changed', (e) => { if (e.target && !updatingProps) document.getElementById('propText').value = e.target.text; });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      if (canvas.getActiveObject()?.isEditing) return;
+      deleteSelected();
+    }
+  });
+}
+
+// ─── ADD ELEMENTS ───
+function addText(text, font, size, weight, color) {
+  const obj = new fabric.Textbox(text, {
+    left: 80 * SCALE,
+    top: (400 + Math.random() * 200) * SCALE,
+    width: 920 * SCALE,
+    fontFamily: font,
+    fontSize: size * SCALE,
+    fontWeight: weight,
+    fill: color,
+    textAlign: 'center',
+    lineHeight: 1.2,
+    editable: true,
+    _origSize: size,
+    _bgColor: '',
+    _padding: 0,
+    _rx: 0,
+  });
+  canvas.add(obj);
+  canvas.setActiveObject(obj);
+  canvas.renderAll();
+}
+
+function addImagePlaceholder(w, h) {
+  const rect = new fabric.Rect({
+    left: ((1080 - w) / 2) * SCALE,
+    top: (400 + Math.random() * 200) * SCALE,
+    width: w * SCALE,
+    height: h * SCALE,
+    fill: 'rgba(255,255,255,0.03)',
+    stroke: 'rgba(255,255,255,0.15)',
+    strokeWidth: 2 * SCALE,
+    strokeDashArray: [8 * SCALE, 6 * SCALE],
+    rx: 12 * SCALE,
+    ry: 12 * SCALE,
+    _isPlaceholder: true,
+  });
+  const label = new fabric.Textbox('IMAGEM\n' + w + '×' + h, {
+    left: ((1080 - w) / 2) * SCALE,
+    top: (400 + Math.random() * 200 + h / 2 - 30) * SCALE,
+    width: w * SCALE,
+    fontFamily: F,
+    fontSize: 20 * SCALE,
+    fontWeight: 500,
+    fill: 'rgba(255,255,255,0.2)',
+    textAlign: 'center',
+    lineHeight: 1.4,
+    editable: true,
+    _origSize: 20,
+    _bgColor: '',
+    _padding: 0,
+    _rx: 0,
+    _isPlaceholderLabel: true,
+  });
+  canvas.add(rect, label);
+  canvas.setActiveObject(rect);
+  canvas.renderAll();
+}
+
+function addBox(color, opacity) {
+  const rect = new fabric.Rect({
+    left: 80 * SCALE,
+    top: (400 + Math.random() * 200) * SCALE,
+    width: 920 * SCALE,
+    height: 200 * SCALE,
+    fill: color,
+    opacity: opacity,
+    rx: 14 * SCALE,
+    ry: 14 * SCALE,
+  });
+  canvas.add(rect);
+  canvas.setActiveObject(rect);
+  canvas.renderAll();
+}
+
+function addDivider() {
+  const line = new fabric.Rect({
+    left: 200 * SCALE,
+    top: (500 + Math.random() * 200) * SCALE,
+    width: 680 * SCALE,
+    height: 3 * SCALE,
+    fill: 'rgba(255,255,255,0.15)',
+    rx: 2 * SCALE,
+    ry: 2 * SCALE,
+  });
+  canvas.add(line);
+  canvas.setActiveObject(line);
+  canvas.renderAll();
+}
+
+function deleteSelected() {
+  const obj = canvas.getActiveObject();
+  if (obj) { canvas.remove(obj); canvas.renderAll(); hideProps(); }
+}
+
+function duplicateSelected() {
+  const o = canvas.getActiveObject();
+  if (!o) return;
+  let cloned;
+  if (o.type === 'textbox') {
+    cloned = new fabric.Textbox(o.text, {
+      left: o.left + 20 * SCALE, top: o.top + 20 * SCALE, width: o.width,
+      fontFamily: o.fontFamily, fontSize: o.fontSize, fontWeight: o.fontWeight,
+      fill: o.fill, textAlign: o.textAlign, lineHeight: o.lineHeight,
+      opacity: o.opacity, editable: true,
+    });
+    cloned._origSize = o._origSize; cloned._bgColor = o._bgColor;
+    cloned._padding = o._padding; cloned._rx = o._rx;
+    if (cloned._bgColor) applyTextBg(cloned);
+  } else if (o.type === 'rect') {
+    cloned = new fabric.Rect({
+      left: o.left + 20 * SCALE, top: o.top + 20 * SCALE,
+      width: o.width, height: o.height, fill: o.fill, opacity: o.opacity,
+      rx: o.rx, ry: o.ry, stroke: o.stroke, strokeWidth: o.strokeWidth,
+      strokeDashArray: o.strokeDashArray,
+    });
+  }
+  if (cloned) { canvas.add(cloned); canvas.setActiveObject(cloned); canvas.renderAll(); }
+}
+
+// ─── EXPORT ───
+function exportCurrent() {
+  saveCurrentSlide();
+  const expCanvas = new fabric.StaticCanvas(null, { width: W, height: H, backgroundColor: canvas.backgroundColor });
+  const scaleUp = W / DW;
+  const objects = canvas.getObjects();
+  if (objects.length === 0) { doExport(expCanvas); return; }
+  objects.forEach(o => {
+    let c;
+    if (o.type === 'textbox') {
+      c = new fabric.Textbox(o.text, {
+        left: o.left * scaleUp, top: o.top * scaleUp,
+        width: o.width * scaleUp,
+        fontFamily: o.fontFamily, fontSize: o.fontSize * scaleUp,
+        fontWeight: o.fontWeight, fill: o.fill, textAlign: o.textAlign,
+        lineHeight: o.lineHeight, opacity: o.opacity,
+      });
+      if (o._bgColor) {
+        c._bgColor = o._bgColor; c._padding = o._padding; c._rx = o._rx;
+        const pad = (c._padding || 0); const rx = (c._rx || 0);
+        const bgCol = c._bgColor;
+        c._renderBackground = function(ctx) {
+          if (!bgCol) return;
+          ctx.save();
+          const w = this.width + pad * 2; const h = this.height + pad * 2;
+          const x = -this.width / 2 - pad; const y = -this.height / 2 - pad;
+          ctx.beginPath();
+          if (rx > 0) { ctx.roundRect(x, y, w, h, rx); } else { ctx.rect(x, y, w, h); }
+          ctx.fillStyle = bgCol; ctx.fill(); ctx.restore();
+        };
+      }
+    } else if (o.type === 'rect') {
+      c = new fabric.Rect({
+        left: o.left * scaleUp, top: o.top * scaleUp,
+        width: o.width * (o.scaleX || 1) * scaleUp,
+        height: o.height * (o.scaleY || 1) * scaleUp,
+        fill: o.fill, opacity: o.opacity,
+        rx: (o.rx || 0) * scaleUp, ry: (o.ry || 0) * scaleUp,
+        stroke: o.stroke || null,
+        strokeWidth: (o.strokeWidth || 0) * scaleUp,
+        strokeDashArray: o.strokeDashArray ? o.strokeDashArray.map(v => v * scaleUp) : null,
+      });
+    }
+    if (c) expCanvas.add(c);
+  });
+  expCanvas.renderAll();
+  doExport(expCanvas);
+}
+
+function doExport(expCanvas) {
+  const dataURL = expCanvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 });
+  const link = document.createElement('a');
+  link.download = `slide-${currentSlide + 1}-${SLIDES_DATA[currentSlide].name.split('·')[1]?.trim().toLowerCase() || 'slide'}.png`;
+  link.href = dataURL;
+  link.click();
+  expCanvas.dispose();
+}
+
+async function exportAll() {
+  for (let i = 0; i < SLIDES_DATA.length; i++) {
+    saveCurrentSlide();
+    loadSlide(i);
+    await new Promise(r => setTimeout(r, 300));
+    exportCurrent();
+    await new Promise(r => setTimeout(r, 200));
+  }
+}
+</script>
+</body>
+</html>
