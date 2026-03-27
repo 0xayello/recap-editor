@@ -58,19 +58,21 @@ const BACKGROUNDS = {
 };
 
 const DEFAULT_RECAP = [
-  { date: '18/mar:', text: 'Fed mantém taxa em 3,50-3,75%.\nProjeção: apenas 1 corte em 2026.' },
-  { date: '17/mar:', text: 'SEC/CFTC classificam 16 criptos como commodities digitais.' },
-  { date: '20/mar:', text: 'Trump: ultimato de 48h ao Irã.\nBrent a $114.' },
-  { date: '22/mar:', text: 'Exploit Resolv USR: $25M roubados, crash 95%.' },
-  { date: '23/mar:', text: 'Trump adia strikes por 5 dias.\nBTC +5,2%.' },
-  { date: '23/mar:', text: 'ZachXBT expõe rede de scam geopolítico ($90M+).' },
+  { date: 'Domingo:', text: 'Exploit Resolv USR: $25M roubados.\nUSR colapsa de $1 → $0,025.' },
+  { date: 'Segunda:', text: '16 criptos foram classificadas como\ncommodities pela SEC/CFTC.' },
+  { date: 'Terça:', text: 'Aave ultrapassou $1T em empréstimos\ncumulativos. Sua v4 foi aprovada pela DAO.' },
+  { date: 'Quinta:', text: 'Trump estende pausa do Irã para 10 dias\n(até ~6/abr).' },
+  { date: 'Sexta:', text: 'Inflação nos EUA voltou a subir: PCE core em 3,1%.\nFed mantém juros em 3,50–3,75% sem previsão de corte.' },
+  { date: 'Sexta:', text: 'BTC cai para $65.9k. Fear & Greed ~12.\n46 dias consecutivos em Extreme Fear.' },
 ];
 
 const DEFAULT_PROXIMA = [
-  { date: '24-26/mar:', text: 'Digital Asset Summit (DAS) NYC' },
-  { date: '25/mar:', text: 'Crypto Assets Conference, Frankfurt' },
-  { date: '~28/mar:', text: 'Deadline do adiamento Trump-Irã' },
-  { date: '30/mar:', text: 'EthCC Cannes começa' },
+  { date: '29/mar+:', text: 'Token unlocks: Wormhole (28%),\nPumpFun (23%), LayerZero (5,6%).' },
+  { date: '30/mar:', text: 'Polymarket expande taker fees\npara 8 novas categorias.' },
+  { date: '30/mar–2/abr:', text: 'EthCC Cannes — principal conferência\nEthereum na Europa.' },
+  { date: '31/mar:', text: 'Consumer Confidence\n(Conference Board).' },
+  { date: '1/abr:', text: 'ISM Manufacturing PMI.' },
+  { date: '~6/abr:', text: 'Deadline estendido Trump-Irã.\nCatalisador binário: diplomacia ou escalada.' },
 ];
 
 // The actual story card at a given scale
