@@ -63,7 +63,7 @@ const DEFAULT_RECAP = [
   { date: 'Segunda', text: 'Trump recuou e pausou ataques.\nBTC saltou +5,86% em horas.\n$415M liquidados.' },
   { date: 'Segunda', text: 'Regra SEC/CFTC entra em vigor:\n16 criptos são commodities.' },
   { date: 'Quinta', text: 'Trump estende pausa do Irã\npor 10 dias. Deadline: ~6/abr.' },
-  { date: 'Sexta', text: 'BTC fecha a $65.9k.\nFear & Greed em ~12.\n46 dias seguidos em Extreme Fear.' },
+  { date: 'Sexta', text: 'Expectativas de inflação disparam\n(Michigan). Petróleo pressiona.\nBTC fecha a $65.9k — 46 dias em Extreme Fear.' },
 ];
 
 const DEFAULT_PROXIMA = [
