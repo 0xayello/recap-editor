@@ -70,7 +70,7 @@ const DEFAULT_RECAP = [
 const DEFAULT_PROXIMA = [
   { date: 'Segunda a Quarta', text: 'EthCC Cannes — principal conferência\nEthereum da Europa.\nAave v4, restaking e regulação na pauta.' },
   { date: 'Segunda', text: 'Índice de confiança do consumidor\namericano. Termômetro de recessão.' },
-  { date: 'Terça', text: 'PMI industrial dos EUA.\nAbaixo de 50 = contração.' },
+  { date: 'Terça', text: 'Saúde da indústria americana.\nDado fraco pode acelerar medo de recessão.' },
   { date: '~Domingo', text: 'Pausa Trump-Irã expira.\nDiplomacia ou escalada —\nsem meio-termo.' },
   { date: 'Semana toda', text: 'Token unlocks: Wormhole (28%),\nPumpFun (23%), LayerZero (5,6%).\nPressão de venda à vista.' },
 ];
