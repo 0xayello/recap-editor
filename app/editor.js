@@ -266,7 +266,7 @@ export default function RecapEditor() {
     const dataParam = searchParams.get('data');
     if (dataParam) {
       try {
-        const decoded = JSON.parse(atob(dataParam));
+        const decoded = JSON.parse(decodeURIComponent(escape(atob(dataParam))));
         if (decoded.recap) {
           if (decoded.recap.title) setRecapTitle(decoded.recap.title);
           if (decoded.recap.events) setRecapEvents(decoded.recap.events);
