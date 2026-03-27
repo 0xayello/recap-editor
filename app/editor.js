@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { toPng } from 'html-to-image';
 
 const BACKGROUNDS = {
@@ -247,6 +248,7 @@ const arrowBtn = (disabled) => ({
 });
 
 export default function RecapEditor() {
+  const searchParams = useSearchParams();
   const [recapEvents, setRecapEvents] = useState(DEFAULT_RECAP);
   const [proximaEvents, setProximaEvents] = useState(DEFAULT_PROXIMA);
   const [recapTitle, setRecapTitle] = useState('Recap da Semana');
@@ -254,9 +256,32 @@ export default function RecapEditor() {
   const [bg, setBg] = useState('checker_green');
   const [activeStory, setActiveStory] = useState('recap');
   const [exporting, setExporting] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const previewRef = useRef(null);
   const exportRef = useRef(null);
+
+  // Hydrate from URL params on mount
+  useEffect(() => {
+    const dataParam = searchParams.get('data');
+    if (dataParam) {
+      try {
+        const decoded = JSON.parse(atob(dataParam));
+        if (decoded.recap) {
+          if (decoded.recap.title) setRecapTitle(decoded.recap.title);
+          if (decoded.recap.events) setRecapEvents(decoded.recap.events);
+        }
+        if (decoded.proxima) {
+          if (decoded.proxima.title) setProximaTitle(decoded.proxima.title);
+          if (decoded.proxima.events) setProximaEvents(decoded.proxima.events);
+        }
+        if (decoded.bg && BACKGROUNDS[decoded.bg]) setBg(decoded.bg);
+        if (decoded.story) setActiveStory(decoded.story);
+      } catch (e) {
+        console.warn('Failed to parse ?data param:', e);
+      }
+    }
+  }, [searchParams]);
 
   const PREVIEW_SCALE = 0.34;
 
@@ -352,6 +377,30 @@ export default function RecapEditor() {
           marginTop: 8,
         }}>
           {exporting ? 'Exportando...' : '⬇ Exportar PNG 1080×1920'}
+        </button>
+
+        <button onClick={() => {
+          const payload = {
+            recap: { title: recapTitle, events: recapEvents },
+            proxima: { title: proximaTitle, events: proximaEvents },
+            bg,
+            story: activeStory,
+          };
+          const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+          const url = `${window.location.origin}${window.location.pathname}?data=${encoded}`;
+          navigator.clipboard.writeText(url).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          });
+        }} style={{
+          width: '100%', padding: '11px 0',
+          background: copied ? '#22C55E' : '#1a1a1a',
+          color: copied ? '#000' : '#999',
+          border: '1px solid #333', borderRadius: 10,
+          fontWeight: 700, fontSize: 13, cursor: 'pointer',
+          marginTop: 6, transition: 'all 0.2s',
+        }}>
+          {copied ? '✓ Link copiado!' : '🔗 Copiar link preenchido'}
         </button>
 
         <div style={{ fontSize: 10, color: '#444', marginTop: 10, lineHeight: 1.5 }}>
