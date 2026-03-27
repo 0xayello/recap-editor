@@ -59,11 +59,11 @@ const BACKGROUNDS = {
 
 const DEFAULT_RECAP = [
   { date: 'Sábado', text: 'Trump deu ultimato de 48h ao Irã.\nPetróleo bateu $112.' },
+  { date: 'Domingo', text: 'Trump recuou e pausou ataques.\nBTC saltou +5,86% em horas.' },
   { date: 'Domingo', text: 'Hack de $25M na stablecoin USR.\nPreço derreteu 97% em minutos.' },
-  { date: 'Segunda', text: 'Trump recuou e pausou ataques.\nBTC saltou +5,86% em horas.\n$415M liquidados.' },
-  { date: 'Segunda', text: 'Regra SEC/CFTC entra em vigor:\n16 criptos são commodities.' },
-  { date: 'Quinta', text: 'Trump estende pausa do Irã\npor 10 dias. Deadline: ~6/abr.' },
-  { date: 'Sexta', text: 'BTC fecha a $65.9k.\nFear & Greed em ~12.\n46 dias seguidos em Extreme Fear.' },
+  { date: 'Segunda', text: 'SEC e CFTC classificaram\n16 criptos como commodities digitais.\nMarco regulatório histórico.' },
+  { date: 'Quinta', text: 'Trump estendeu por +10 dias\na pausa de ataques ao Irã.' },
+  { date: 'Sexta', text: 'Inflação subiu nos EUA.\nFed mantém juros em 3,50–3,75%.' },
 ];
 
 const DEFAULT_PROXIMA = [
