@@ -61,9 +61,10 @@ const DEFAULT_RECAP = [
   { date: 'Sábado', text: 'Trump deu ultimato de 48h ao Irã.\nPetróleo bateu $112.' },
   { date: 'Domingo', text: 'Trump recuou e pausou ataques.\nBTC saltou +5,86% em horas.' },
   { date: 'Domingo', text: 'Hack de $25M na stablecoin USR.\nPreço derreteu 97% em minutos.' },
+  { date: 'Domingo', text: 'Backpack Exchange lançou token BP.\nFDV de $3,1B. Airdrop de 25%.\nZero alocação pra insiders.' },
   { date: 'Segunda', text: 'SEC e CFTC classificaram\n16 criptos como commodities digitais.\nMarco regulatório histórico.' },
+  { date: 'Terça', text: 'Aave bateu $1 trilhão em empréstimos —\nprimeiro protocolo DeFi a atingir a marca.' },
   { date: 'Quinta', text: 'Trump estendeu por +10 dias\na pausa de ataques ao Irã.' },
-  { date: 'Sexta', text: 'Inflação subiu nos EUA.\nFed mantém juros em 3,50–3,75%.' },
 ];
 
 const DEFAULT_PROXIMA = [
