@@ -58,15 +58,12 @@ const BACKGROUNDS = {
 };
 
 const DEFAULT_RECAP = [
-  { date: 'Sábado:', text: 'Trump dá ultimato de 48h ao Irã.\nBrent bate $112 intraday.' },
-  { date: 'Domingo:', text: 'Trump pausa strikes por 5 dias.\nBTC salta +5,86% ($67K → $71.8K). $415M em liquidações.' },
-  { date: 'Domingo:', text: 'Exploit Resolv USR: $25M roubados.\nUSR colapsa de $1 → $0,025.' },
-  { date: 'Domingo:', text: 'Backpack Exchange (BP) TGE na Solana.\nZero alocação para insiders — sem precedente.' },
-  { date: 'Segunda:', text: '16 criptos foram classificadas como\ncommodities pela SEC/CFTC.' },
-  { date: 'Terça:', text: 'Aave ultrapassou $1T em empréstimos\ncumulativos. Sua v4 foi aprovada pela DAO.' },
-  { date: 'Quinta:', text: 'Trump estende pausa do Irã para 10 dias\n(até ~6/abr).' },
-  { date: 'Sexta:', text: 'Inflação nos EUA voltou a subir: PCE core em 3,1%.\nFed mantém juros em 3,50–3,75% sem previsão de corte.' },
-  { date: 'Sexta:', text: 'BTC cai para $65.9k. Fear & Greed ~12.\n46 dias consecutivos em Extreme Fear.' },
+  { date: 'Sábado', text: 'Trump deu ultimato de 48h ao Irã.\nPetróleo bateu $112.' },
+  { date: 'Domingo', text: 'Trump recuou e pausou ataques.\nBTC saltou +5,86% em horas.\n$415M liquidados.' },
+  { date: 'Domingo', text: 'Hack de $25M no stablecoin USR.\nPreço derreteu 97% em minutos.' },
+  { date: 'Segunda', text: 'SEC e CFTC classificaram 16 criptos\ncomo commodities.\nMarco regulatório histórico.' },
+  { date: 'Quinta', text: 'Trump estendeu pausa do Irã\npra 10 dias. Novo deadline: ~6/abr.' },
+  { date: 'Sexta', text: 'Inflação subiu nos EUA. Fed travado.\nBTC fechou a $65.9k —\n46 dias em Extreme Fear.' },
 ];
 
 const DEFAULT_PROXIMA = [
@@ -138,14 +135,20 @@ function StoryCard({ title, events, bgKey, scale = 1, innerRef }) {
 
           {events.map((ev, i) => (
             <div key={i} style={{
-              padding: `${S(28)}px 0`,
+              padding: `${S(24)}px 0`,
               borderBottom: i < events.length - 1 ? `${S(1.5)}px solid #c8c0b0` : 'none',
             }}>
               <p style={{
-                fontSize: S(35), lineHeight: 1.45, color: '#2a2a2a',
+                fontSize: S(30), fontWeight: 800, color: '#1a1a1a',
+                margin: 0, textAlign: 'center', letterSpacing: S(1),
+                textTransform: 'uppercase',
+                marginBottom: S(8),
+              }}>{ev.date}</p>
+              <p style={{
+                fontSize: S(33), lineHeight: 1.45, color: '#2a2a2a',
                 fontWeight: 400, margin: 0, whiteSpace: 'pre-wrap',
+                textAlign: 'center',
               }}>
-                <span style={{ fontWeight: 800, color: '#1a1a1a' }}>{ev.date}</span>{' '}
                 {ev.text}
               </p>
             </div>
