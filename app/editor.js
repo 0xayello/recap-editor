@@ -150,12 +150,8 @@ function StoryCard({ title, events, bgKey, scale = 1, innerRef }) {
 
           <div style={{
             marginTop: S(12), borderTop: `${S(3)}px solid #2a2a2a`,
-            padding: `${S(26)}px 0`, textAlign: 'center',
-          }}>
-            <span style={{
-              fontSize: S(34), fontWeight: 900, letterSpacing: S(8), color: '#1a1a1a',
-            }}>CONFIRMAR</span>
-          </div>
+            padding: `${S(10)}px 0`,
+          }} />
         </div>
 
         {/* Footer */}
