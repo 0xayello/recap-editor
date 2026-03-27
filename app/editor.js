@@ -58,7 +58,10 @@ const BACKGROUNDS = {
 };
 
 const DEFAULT_RECAP = [
+  { date: 'Sábado:', text: 'Trump dá ultimato de 48h ao Irã.\nBrent bate $112 intraday.' },
+  { date: 'Domingo:', text: 'Trump pausa strikes por 5 dias.\nBTC salta +5,86% ($67K → $71.8K). $415M em liquidações.' },
   { date: 'Domingo:', text: 'Exploit Resolv USR: $25M roubados.\nUSR colapsa de $1 → $0,025.' },
+  { date: 'Domingo:', text: 'Backpack Exchange (BP) TGE na Solana.\nZero alocação para insiders — sem precedente.' },
   { date: 'Segunda:', text: '16 criptos foram classificadas como\ncommodities pela SEC/CFTC.' },
   { date: 'Terça:', text: 'Aave ultrapassou $1T em empréstimos\ncumulativos. Sua v4 foi aprovada pela DAO.' },
   { date: 'Quinta:', text: 'Trump estende pausa do Irã para 10 dias\n(até ~6/abr).' },
