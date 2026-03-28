@@ -68,12 +68,12 @@ const DEFAULT_RECAP = [
 ];
 
 const DEFAULT_PROXIMA = [
-  { date: 'Segunda a Quinta', text: 'EthCC Cannes — principal conferência\nEthereum da Europa.\nAave v4, restaking e regulação na pauta.' },
-  { date: 'Terça', text: 'Índice de confiança do consumidor\namericano. Termômetro de recessão.' },
+  { date: 'Segunda a Quinta', text: 'EthCC Cannes\nPrincipal conferência Ethereum da Europa.' },
+  { date: 'Terça', text: 'Índice de confiança do consumidor americano.\nTermômetro de recessão.' },
   { date: 'Quarta', text: 'Saúde da indústria americana.\nDado fraco pode acelerar medo de recessão.' },
-  { date: 'Quinta', text: 'Unlock de 1,28B tokens da Wormhole —\n28% do supply circulante.' },
+  { date: 'Quinta', text: 'Unlock de 1,28B tokens da Wormhole.\n28% do supply circulante.' },
   { date: 'Sexta', text: 'Payroll dos EUA (dados de emprego).\nPrincipal dado macro do mês.' },
-  { date: '~Segunda 6/abr', text: 'Pausa Trump-Irã expira às 20h ET.\nDiplomacia ou escalada —\nsem meio-termo.' },
+  { date: '~Segunda 6/abr', text: 'Pausa Trump-Irã expira às 20h ET.\nDiplomacia ou escalada — sem meio-termo.' },
 ];
 
 // The actual story card at a given scale
