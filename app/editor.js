@@ -71,8 +71,8 @@ const DEFAULT_PROXIMA = [
   { date: 'Segunda a Quinta', text: 'EthCC Cannes\nPrincipal conferência Ethereum da Europa.' },
   { date: 'Terça', text: 'Índice de confiança do consumidor americano.\nTermômetro de recessão.' },
   { date: 'Quarta', text: 'Saúde da indústria americana.\nDado fraco pode acelerar medo de recessão.' },
-  { date: 'Quinta', text: 'Unlock de 1,28B tokens da Wormhole.\n28% do supply circulante.' },
   { date: 'Sexta', text: 'Payroll dos EUA (dados de emprego).\nPrincipal dado macro do mês.' },
+  { date: 'Sexta', text: 'Unlock de 1,28B tokens da Wormhole.\n28% do supply circulante.' },
   { date: '~Segunda 6/abr', text: 'Pausa Trump-Irã expira às 20h ET.\nDiplomacia ou escalada — sem meio-termo.' },
 ];
 
