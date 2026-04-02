@@ -6,6 +6,7 @@
 <title>Bom Digma · Stories Editor (Fabric.js)</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 :root {
@@ -84,7 +85,7 @@ input[type=color].cpick { width:32px; height:26px; border:1px solid var(--border
   <div class="tdiv"></div>
   <div class="snav" id="snav"></div>
   <div class="topactions">
-    <button class="expall" onclick="exportAll()">⬇ Exportar Todos</button>
+    <button class="expall" onclick="exportAll()">⬇ Exportar PDF</button>
     <button class="expbtn" onclick="exportCurrent()">⬇ Exportar Slide</button>
   </div>
 </div>
@@ -1384,14 +1385,20 @@ function duplicateSelected() {
 }
 
 // ─── EXPORT ───
-async function exportCurrent() {
+async function renderSlideToDataURL(slideIdx) {
+  // Save current, load target slide, wait for images
   saveCurrentSlide();
+  loadSlide(slideIdx);
+  await new Promise(r => setTimeout(r, 500)); // wait for async images to load
+
   const expCanvas = new fabric.StaticCanvas(null, { width: W, height: H, backgroundColor: canvas.backgroundColor });
   const scaleUp = W / DW;
   const objects = canvas.getObjects();
-  if (objects.length === 0) { doExport(expCanvas); return; }
+
   const imgPromises = [];
-  objects.forEach(o => {
+  const orderedNonImg = [];
+
+  objects.forEach((o, idx) => {
     let c;
     if (o.type === 'textbox') {
       c = new fabric.Textbox(o.text, {
@@ -1400,6 +1407,7 @@ async function exportCurrent() {
         fontFamily: o.fontFamily, fontSize: o.fontSize * scaleUp,
         fontWeight: o.fontWeight, fill: o.fill, textAlign: o.textAlign,
         lineHeight: o.lineHeight, opacity: o.opacity,
+        scaleX: o.scaleX || 1, scaleY: o.scaleY || 1,
       });
       if (o._bgColor) {
         c._bgColor = o._bgColor; c._padding = o._padding; c._rx = o._rx;
@@ -1415,6 +1423,7 @@ async function exportCurrent() {
           ctx.fillStyle = bgCol; ctx.fill(); ctx.restore();
         };
       }
+      orderedNonImg.push({ obj: c, idx });
     } else if (o.type === 'rect') {
       c = new fabric.Rect({
         left: o.left * scaleUp, top: o.top * scaleUp,
@@ -1426,6 +1435,7 @@ async function exportCurrent() {
         strokeWidth: (o.strokeWidth || 0) * scaleUp,
         strokeDashArray: o.strokeDashArray ? o.strokeDashArray.map(v => v * scaleUp) : null,
       });
+      orderedNonImg.push({ obj: c, idx });
     } else if (o.type === 'image') {
       imgPromises.push(new Promise(resolve => {
         fabric.Image.fromURL(o.getSrc(), function(img) {
@@ -1434,36 +1444,52 @@ async function exportCurrent() {
             scaleX: (o.scaleX || 1) * scaleUp,
             scaleY: (o.scaleY || 1) * scaleUp,
             opacity: o.opacity != null ? o.opacity : 1,
+            originX: o.originX || 'left', originY: o.originY || 'top',
           });
-          expCanvas.add(img);
-          resolve();
+          resolve({ obj: img, idx });
         });
       }));
     }
-    if (c) expCanvas.add(c);
   });
-  await Promise.all(imgPromises);
+
+  const imgResults = await Promise.all(imgPromises);
+  // Merge all objects and sort by original index to preserve layer order
+  const allObjects = [...orderedNonImg, ...imgResults].sort((a, b) => a.idx - b.idx);
+  allObjects.forEach(item => expCanvas.add(item.obj));
+
   expCanvas.renderAll();
-  doExport(expCanvas);
+  const dataURL = expCanvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 });
+  expCanvas.dispose();
+  return dataURL;
 }
 
-function doExport(expCanvas) {
-  const dataURL = expCanvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 });
+async function exportCurrent() {
+  const origSlide = currentSlide;
+  const dataURL = await renderSlideToDataURL(origSlide);
   const link = document.createElement('a');
-  link.download = `slide-${currentSlide + 1}-${SLIDES_DATA[currentSlide].name.split('·')[1]?.trim().toLowerCase() || 'slide'}.png`;
+  link.download = `slide-${origSlide + 1}-${SLIDES_DATA[origSlide].name.split('·')[1]?.trim().toLowerCase() || 'slide'}.png`;
   link.href = dataURL;
   link.click();
-  expCanvas.dispose();
+  loadSlide(origSlide);
 }
 
 async function exportAll() {
+  const origSlide = currentSlide;
+  const { jsPDF } = window.jspdf;
+  // PDF in portrait, mm units, custom page size matching 1080x1920 aspect ratio
+  const pdfW = 108; // mm
+  const pdfH = 192; // mm (keeps 9:16 ratio)
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [pdfW, pdfH] });
+
   for (let i = 0; i < SLIDES_DATA.length; i++) {
-    saveCurrentSlide();
-    loadSlide(i);
-    await new Promise(r => setTimeout(r, 300));
-    exportCurrent();
-    await new Promise(r => setTimeout(r, 200));
+    if (i > 0) pdf.addPage([pdfW, pdfH]);
+    const dataURL = await renderSlideToDataURL(i);
+    pdf.addImage(dataURL, 'PNG', 0, 0, pdfW, pdfH);
   }
+
+  pdf.save('bom-digma-stories.pdf');
+  // Restore original slide
+  loadSlide(origSlide);
 }
 </script>
 </body>
