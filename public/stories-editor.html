@@ -608,18 +608,28 @@ function loadSlide(idx) {
     } else if (d.type === 'image' && d._src) {
       const isBg = d._isBgImage || false;
       fabric.Image.fromURL(d._src, function(img) {
-        img.set({
-          left: d.left, top: d.top,
-          scaleX: d.scaleX || 1, scaleY: d.scaleY || 1,
-          opacity: d.opacity != null ? d.opacity : 1,
-          originX: d.originX || 'left', originY: d.originY || 'top',
-          selectable: d.selectable !== false && !isBg,
-          evented: !isBg,
-          _isUploadedImage: d._isUploadedImage || false,
-          _isBgImage: isBg,
-        });
-        if (isBg) canvas.insertAt(img, 0);
-        else canvas.add(img);
+        if (isBg) {
+          // Always recalculate cover scale for bg images
+          const scale = Math.max(DW / img.width, DH / img.height);
+          img.set({
+            left: DW / 2, top: DH / 2,
+            originX: 'center', originY: 'center',
+            scaleX: scale, scaleY: scale,
+            opacity: 1, selectable: false, evented: false,
+            _isBgImage: true,
+          });
+          canvas.insertAt(img, 0);
+        } else {
+          img.set({
+            left: d.left, top: d.top,
+            scaleX: d.scaleX || 1, scaleY: d.scaleY || 1,
+            opacity: d.opacity != null ? d.opacity : 1,
+            originX: d.originX || 'left', originY: d.originY || 'top',
+            selectable: true, evented: true,
+            _isUploadedImage: d._isUploadedImage || false,
+          });
+          canvas.add(img);
+        }
         canvas.renderAll();
       });
       return;
