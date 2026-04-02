@@ -291,6 +291,7 @@ const SLIDES_DATA = [
       { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
       { type:'placeholder', x:80, y:800, w:920, h:460, label:'IMAGEM\nPrint CoinGecko $SUDO\n+204.3% (7d) — gráfico verde' },
       { type:'text', text:'Quando o projeto perde o propósito,\na DAO vota por dissolver e distribuir\no tesouro entre holders.', x:80, y:1300, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.5 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1640, w:300, h:90 },
       { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
@@ -306,6 +307,7 @@ const SLIDES_DATA = [
       { type:'text', text:'Seriam 400 ETH pra dividir entre os holders\nde $SUDO. Fazendo as contas, cada token\nvalia cerca de $0.03 no resgate.', x:40, y:800, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'text', text:'Só que antes da proposta,\no token estava cotado a $0.009.', x:40, y:1060, w:1000, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
       { type:'text', text:'Em duas horas, o preço foi de $0.009\npra $0.03. Quem comprou antes\nda votação, triplicou.', x:40, y:1240, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1640, w:300, h:90 },
       { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
@@ -321,6 +323,7 @@ const SLIDES_DATA = [
       { type:'text', text:'Só que o Balancer propôs eliminar as emissões.\nSe passar, a Aura perde a razão de existir.', x:40, y:770, w:1000, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
       { type:'text', text:'O tesouro tem $1M disponível agora\nmais $3M travados por 12 meses.\nValor de resgate: $0.0226 por token.', x:40, y:1000, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'text', text:'Mas o preço de mercado já está em $0.025.\nOu seja: o mercado já precificou.\nSem janela de arbitragem aqui.', x:40, y:1280, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1640, w:300, h:90 },
       { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
@@ -336,6 +339,7 @@ const SLIDES_DATA = [
       { type:'text', text:'A lógica é simples: quando uma DAO vota\npra dissolver o tesouro, o valor de resgate\npor token fica definido.', x:40, y:800, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'text', text:'Se o mercado ainda não precificou isso,\na diferença entre o preço de mercado e o valor\nde resgate é onde mora o lucro.', x:40, y:1060, w:1000, font:F, size:38, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
       { type:'text', text:'Fique de olho em propostas de dissolução\nem DAOs com baixa atividade.', x:40, y:1340, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1640, w:300, h:90 },
       { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
@@ -349,7 +353,8 @@ const SLIDES_DATA = [
       { type:'text', text:'Se inscreva de graça na Bom Digma.\nA newsletter cripto que você recebe\ntodos os dias no seu e-mail e lê em 5 minutos.', x:140, y:540, w:800, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'rect', x:360, y:740, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
       { type:'placeholder', x:80, y:810, w:920, h:460, label:'IMAGEM\nCard Substack Bom Digma' },
-      { type:'text', text:'Reage esse stories para receber\no link na sua DM.', x:80, y:1320, w:920, font:F, size:28, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1640, w:300, h:90 },
+      { type:'text', text:'Reage esse stories para receber\no link na sua DM.', x:80, y:1760, w:920, font:F, size:28, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
     ]
   },
   { // Slide 6 — Rapidinhas (último)
@@ -530,6 +535,23 @@ function buildSlideJSON(sd) {
         _rx: 0,
         _isPlaceholderLabel: true,
       });
+    } else if (el.type === 'staticImage') {
+      // Deferred — loaded async after canvas is ready
+      objects.push({
+        type: 'image',
+        _src: el.src,
+        _isStaticImage: true,
+        left: el.x * SCALE,
+        top: el.y * SCALE,
+        scaleX: (el.w * SCALE) / 1, // placeholder, recalculated on load
+        scaleY: (el.h * SCALE) / 1,
+        _targetW: el.w * SCALE,
+        _targetH: el.h * SCALE,
+        originX: 'center',
+        originY: 'center',
+        selectable: false,
+        evented: false,
+      });
     }
   });
   return { bg: sd.bg || '#000000', objects };
@@ -569,6 +591,9 @@ function saveCurrentSlide() {
       base._src = o.getSrc();
       base._isUploadedImage = o._isUploadedImage || false;
       base._isBgImage = o._isBgImage || false;
+      base._isStaticImage = o._isStaticImage || false;
+      base._targetW = o._targetW;
+      base._targetH = o._targetH;
       base.originX = o.originX; base.originY = o.originY;
       base.selectable = o.selectable; base.evented = o.evented;
     }
@@ -635,6 +660,19 @@ function loadSlide(idx) {
             _isBgImage: true,
           });
           canvas.insertAt(img, 0);
+        } else if (d._isStaticImage) {
+          const tw = d._targetW || 200 * SCALE;
+          const th = d._targetH || 60 * SCALE;
+          const fitScale = Math.min(tw / img.width, th / img.height);
+          img.set({
+            left: d.left, top: d.top,
+            scaleX: fitScale, scaleY: fitScale,
+            opacity: d.opacity != null ? d.opacity : 1,
+            originX: d.originX || 'center', originY: d.originY || 'center',
+            selectable: false, evented: false,
+            _isStaticImage: true,
+          });
+          canvas.add(img);
         } else {
           img.set({
             left: d.left, top: d.top,
