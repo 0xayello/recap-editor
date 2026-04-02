@@ -280,65 +280,65 @@ const F = 'Space Grotesk'; // primary font
 // Layout padrão: BOM DIGMA (y:200) → linha (y:250) → título (y:330) → subtítulo (y:560) → divisor (y:730) → conteúdo → CTA (y:1760)
 // Imagens SÓ quando a edição tem imagem real. Copy narrativa, não telegráfica.
 const SLIDES_DATA = [
-  { // Slide 1 — Hook + Contexto (combinados)
+  { // Slide 1 — Hook + Contexto
     name: '1 · Hook',
     bg: '#000000',
     elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'🚪 PROJETOS ESTÃO\nFECHANDO AS PORTAS', x:80, y:330, w:920, font:F, size:80, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
-      { type:'text', text:'E em alguns deles, pode existir\numa oportunidade pra você.', x:140, y:560, w:800, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'💀 STABLECOIN SOFRE\nATAQUE DE U$60M', x:80, y:330, w:920, font:F, size:72, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'A $USR da Resolv perdeu 95% do valor\nem questão de minutos.', x:40, y:560, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'placeholder', x:80, y:800, w:920, h:460, label:'IMAGEM\nPrint CoinGecko $SUDO\n+204.3% (7d) — gráfico verde' },
-      { type:'text', text:'Quando o projeto perde o propósito,\na DAO vota por dissolver e distribuir\no tesouro entre holders.', x:80, y:1300, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.5 },
+      { type:'placeholder', x:80, y:800, w:920, h:460, label:'IMAGEM\nGráfico $USR — queda de $1.00 para $0.05' },
+      { type:'text', text:'Na madrugada de domingo, um hacker explorou\numa falha no protocolo e emitiu 80 milhões\nde $USR sem colateral real.', x:40, y:1300, w:1000, font:F, size:26, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.5 },
       { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
       { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
-  { // Slide 2 — Caso Sudoswap (sem imagem extra — já está no slide 1)
-    name: '2 · Sudoswap',
+  { // Slide 2 — O Ataque
+    name: '2 · O Ataque',
     bg: '#000000',
     elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'📈 $SUDO +200% EM 2H', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
-      { type:'text', text:'No dia 27 de março, rolou uma proposta\npra dissolver o tesouro da Sudoswap.', x:40, y:520, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'🔓 COMO O HACKER AGIU', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'Ele comprometeu uma carteira que tinha permissão\npra emitir novos tokens $USR no protocolo.', x:40, y:520, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'Seriam 400 ETH pra dividir entre os holders\nde $SUDO. Fazendo as contas, cada token\nvalia cerca de $0.03 no resgate.', x:40, y:800, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'text', text:'Só que antes da proposta,\no token estava cotado a $0.009.', x:40, y:1060, w:1000, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
-      { type:'text', text:'Em duas horas, o preço foi de $0.009\npra $0.03. Quem comprou antes\nda votação, triplicou.', x:40, y:1240, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'Emitiu 80 milhões de $USR depositando\napenas U$200 mil em USDC como colateral.', x:40, y:800, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'Vendeu tudo em DEXes como Curve,\nParaswap e Kyberswap.\nO preço despencou pra U$0.05.', x:40, y:1020, w:1000, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'text', text:'Hoje a $USR está cotada a U$0.25.\nQuem tinha exposição perdeu no mínimo 75%.', x:40, y:1280, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
       { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
-  { // Slide 3 — Caso Aura (sem imagem — edição não tem)
-    name: '3 · Aura',
+  { // Slide 3 — Contágio
+    name: '3 · Contágio',
     bg: '#000000',
     elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'⚠️ NEM SEMPRE TEM JANELA', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
-      { type:'text', text:'A Aura Finance é um metaprotocolo do Balancer.\nControla mais de 50% das emissões de $BAL.', x:40, y:520, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'🔗 O CONTÁGIO', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'Vários mercados de empréstimo aceitavam\n$USR e $RLP como garantia.', x:40, y:520, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'rect', x:360, y:700, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'Só que o Balancer propôs eliminar as emissões.\nSe passar, a Aura perde a razão de existir.', x:40, y:770, w:1000, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
-      { type:'text', text:'O tesouro tem $1M disponível agora\nmais $3M travados por 12 meses.\nValor de resgate: $0.0226 por token.', x:40, y:1000, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'text', text:'Mas o preço de mercado já está em $0.025.\nOu seja: o mercado já precificou.\nSem janela de arbitragem aqui.', x:40, y:1280, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.4 },
+      { type:'text', text:'O preço desses colaterais só atualizava\na cada 24 horas. Sem mecanismo dinâmico.', x:40, y:770, w:1000, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'text', text:'Traders espertos compraram $USR barato,\ndepositaram em vaults da Morpho e tomaram\nempréstimos em USDC antes da atualização.', x:40, y:1000, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'Trocaram dinheiro ruim por dinheiro bom.\nGestores como Gauntlet e Re7Labs foram afetados.', x:40, y:1280, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.4 },
       { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
       { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
-  { // Slide 4 — Tese (sem imagem)
-    name: '4 · Tese',
+  { // Slide 4 — A Lição
+    name: '4 · Lição',
     bg: '#000000',
     elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'🧠 E POR QUE ISSO\nIMPORTA PRA VOCÊ?', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
-      { type:'text', text:'Acreditamos que outros projetos descentralizados\nvão passar por situações parecidas nos próximos meses.', x:40, y:530, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'🧠 18 AUDITORIAS.\nNENHUMA PEGOU.', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'A Resolv foi auditada 18 vezes por empresas\nreconhecidas como Pashov e MixBytes.', x:40, y:530, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'A lógica é simples: quando uma DAO vota\npra dissolver o tesouro, o valor de resgate\npor token fica definido.', x:40, y:800, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'text', text:'Se o mercado ainda não precificou isso,\na diferença entre o preço de mercado e o valor\nde resgate é onde mora o lucro.', x:40, y:1060, w:1000, font:F, size:38, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
-      { type:'text', text:'Fique de olho em propostas de dissolução\nem DAOs com baixa atividade.', x:40, y:1340, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.4 },
+      { type:'text', text:'As falhas eram básicas: um único endereço\ncontrolava a emissão. Qualquer carteira podia\nemitir $USR sem limite.', x:40, y:800, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'Auditoria não é garantia.\nNunca coloque todo seu capital\nem uma única estratégia ou ativo.', x:40, y:1060, w:1000, font:F, size:38, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
+      { type:'text', text:'Retorno acima de 10% a.a. implica risco maior.\nCom a taxa livre de risco a 3.5%, 10% é quase\no triplo de treasuries americanos.', x:40, y:1320, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.4 },
       { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
       { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
@@ -366,15 +366,16 @@ const SLIDES_DATA = [
       { type:'text', text:'⚡ RAPIDINHAS DA SEMANA', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
       { type:'text', text:'O que mais rolou de importante', x:140, y:500, w:800, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'rect', x:360, y:620, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'A Lido propôs um buyback de U$20M em $LDO.\nO token bateu mínimas históricas e a DAO quer reagir.', x:80, y:670, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'A Privy (adquirida pela Stripe) começou a oferecer\nrenda dolarizada em DeFi via agregador Pods.', x:80, y:670, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'rect', x:340, y:830, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
-      { type:'text', text:'A lei de stablecoins travou nos EUA.\nBancos bloquearam por medo de empresas pagarem em cripto.', x:80, y:870, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'rect', x:340, y:1030, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
-      { type:'text', text:'A Ethereum Foundation criou a "Zona Econômica\nEthereum" junto com a Gnosis e a Zisk.', x:80, y:1070, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'rect', x:340, y:1220, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
-      { type:'text', text:'A ICE colocou mais U$600M na Polymarket.\nÉ o segundo aporte — o primeiro foi de U$1 bilhão.', x:80, y:1260, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'rect', x:340, y:1410, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
-      { type:'text', text:'LayerZero integrou com a Canton blockchain.', x:80, y:1450, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'A Kalshi está captando U$1B em nova rodada.\nValuation de U$22B — dobro da última.', x:80, y:870, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:340, y:1020, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
+      { type:'text', text:'Democratas e republicanos se uniram pra criar lei\nproibindo mercados preditivos de eventos esportivos.', x:80, y:1060, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:340, y:1210, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
+      { type:'text', text:'Dario Durigan, novo Ministro da Fazenda, quer\nadiar taxação cripto até depois da eleição.', x:80, y:1250, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:340, y:1400, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
+      { type:'text', text:'Coinbase lançou perpétuos de ações das "7 magníficas".\nSó disponível fora dos EUA.', x:80, y:1440, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
       { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   }
