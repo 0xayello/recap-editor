@@ -543,14 +543,14 @@ function buildSlideJSON(sd) {
         _isStaticImage: true,
         left: el.x * SCALE,
         top: el.y * SCALE,
-        scaleX: (el.w * SCALE) / 1, // placeholder, recalculated on load
+        scaleX: (el.w * SCALE) / 1,
         scaleY: (el.h * SCALE) / 1,
         _targetW: el.w * SCALE,
         _targetH: el.h * SCALE,
         originX: 'center',
         originY: 'center',
-        selectable: false,
-        evented: false,
+        selectable: true,
+        evented: true,
       });
     }
   });
@@ -666,11 +666,13 @@ function loadSlide(idx) {
           const fitScale = Math.min(tw / img.width, th / img.height);
           img.set({
             left: d.left, top: d.top,
-            scaleX: fitScale, scaleY: fitScale,
+            scaleX: d.scaleX > 0.001 ? d.scaleX : fitScale,
+            scaleY: d.scaleY > 0.001 ? d.scaleY : fitScale,
             opacity: d.opacity != null ? d.opacity : 1,
             originX: d.originX || 'center', originY: d.originY || 'center',
-            selectable: false, evented: false,
+            selectable: true, evented: true,
             _isStaticImage: true,
+            _targetW: tw, _targetH: th,
           });
           canvas.add(img);
         } else {
