@@ -1028,16 +1028,16 @@ const PALETTES = {
     brand: '#F7941D',
     swatches: ['#FFFFFF','#F7941D','#E53935','#000000','#1a1a1a','#888888'],
   },
-  deusa_light: { // bg_deusa_light.png — light marble, needs very dark text
+  deusa_light: { // bg_deusa_light.png — light marble
     name: 'Deusa Clara',
-    title: '#000000',
+    title: '#3E2215',
     accent: '#8B4000',
     negative: '#8B0000',
-    body: 'rgba(0,0,0,0.8)',
-    muted: 'rgba(0,0,0,0.55)',
-    divider: 'rgba(0,0,0,0.2)',
+    body: 'rgba(0,0,0,0.75)',
+    muted: 'rgba(0,0,0,0.5)',
+    divider: 'rgba(62,34,21,0.25)',
     brand: '#8B4000',
-    swatches: ['#000000','#8B4000','#8B0000','#FFFFFF','#222222','#444444'],
+    swatches: ['#3E2215','#8B4000','#8B0000','#FFFFFF','#5C3A2A','#444444'],
   },
   deusa_saturated: { // bg_deusa_saturated.png — warm dark tones, high contrast
     name: 'Deusa Saturada',
@@ -1050,16 +1050,16 @@ const PALETTES = {
     brand: '#FFB347',
     swatches: ['#FFFFFF','#FFB347','#FF6B6B','#1a1a1a','#000000','#cccccc'],
   },
-  louros: { // bg_louros.png — golden/beige, needs very dark text
+  louros: { // bg_louros.png — golden/beige
     name: 'Louros',
-    title: '#000000',
+    title: '#3E2215',
     accent: '#6B3A00',
     negative: '#7B0000',
-    body: 'rgba(0,0,0,0.85)',
-    muted: 'rgba(0,0,0,0.6)',
-    divider: 'rgba(0,0,0,0.25)',
+    body: 'rgba(0,0,0,0.8)',
+    muted: 'rgba(0,0,0,0.55)',
+    divider: 'rgba(62,34,21,0.25)',
     brand: '#6B3A00',
-    swatches: ['#000000','#6B3A00','#7B0000','#FFFFFF','#222222','#444444'],
+    swatches: ['#3E2215','#6B3A00','#7B0000','#FFFFFF','#5C3A2A','#444444'],
   },
 };
 
@@ -1087,8 +1087,21 @@ function applyPalette(newKey) {
   canvas.getObjects().forEach(obj => {
     if (obj._isBgImage) return;
     if (obj.type === 'textbox') {
-      const mapped = map[obj.fill];
-      if (mapped) obj.set('fill', mapped);
+      if (obj._isPlaceholderLabel) {
+        const isLight = (newKey !== 'dark' && newKey !== 'deusa_saturated');
+        obj.set('fill', isLight ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.2)');
+      } else {
+        const mapped = map[obj.fill];
+        if (mapped) obj.set('fill', mapped);
+      }
+    }
+    if (obj.type === 'rect' && obj._isPlaceholder) {
+      // Placeholder boxes: adapt stroke/fill to background
+      const isLight = (newKey !== 'dark' && newKey !== 'deusa_saturated');
+      obj.set({
+        stroke: isLight ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.15)',
+        fill: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.03)',
+      });
     }
     if (obj.type === 'rect' && !obj._isPlaceholder) {
       const mapped = map[obj.fill];
