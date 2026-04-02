@@ -291,9 +291,9 @@ const SLIDES_DATA = [
       { type:'text', text:'BOM DIGMA', x:80, y:70, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:120, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
       // Título grande centralizado
-      { type:'text', text:'PROJETOS ESTÃO\nFECHANDO AS PORTAS', x:80, y:200, w:920, font:F, size:56, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'PROJETOS ESTÃO\nFECHANDO AS PORTAS', x:80, y:200, w:920, font:F, size:80, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
       // Subtítulo
-      { type:'text', text:'E em alguns deles pode existir\numa oportunidade para você.', x:140, y:460, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.45)', align:'center', lineH:1.4 },
+      { type:'text', text:'E em alguns deles pode existir\numa oportunidade para você.', x:140, y:520, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       // Divisor
       { type:'rect', x:360, y:600, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
       // Imagem da edição (print principal)
@@ -1072,41 +1072,87 @@ function getBgKey(url) {
   return 'dark';
 }
 
+function parseColorBrightness(c) {
+  // Returns 0-255 brightness estimate for any color string
+  if (!c) return 128;
+  if (c.startsWith('rgba')) {
+    const m = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (m) { const a = parseFloat(c.match(/,\s*([\d.]+)\s*\)/)?.[1] || 1); return (parseInt(m[1])*0.299+parseInt(m[2])*0.587+parseInt(m[3])*0.114) * a; }
+  }
+  if (c.startsWith('#')) {
+    const hex = c.length === 4 ? c[1]+c[1]+c[2]+c[2]+c[3]+c[3] : c.slice(1,7);
+    const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+    return r*0.299+g*0.587+b*0.114;
+  }
+  return 128;
+}
+
+function classifyColor(c) {
+  // Classify a color into a semantic role for remapping
+  if (!c) return 'muted';
+  const str = String(c).toLowerCase();
+  // Orange/accent family
+  if (str.includes('f7941d') || str.includes('ffb347') || str.includes('8b4000') || str.includes('6b3a00') || str.includes('b85a00')) return 'accent';
+  // Red/negative family
+  if (str.includes('e53935') || str.includes('ff6b6b') || str.includes('8b0000') || str.includes('7b0000') || str.includes('b71c1c') || str.includes('9b1b1b')) return 'negative';
+  const bri = parseColorBrightness(c);
+  // Check if it's an rgba with low opacity (muted/body text)
+  const alphaMatch = str.match(/rgba?\([^)]+,\s*([\d.]+)\s*\)/);
+  if (alphaMatch) {
+    const alpha = parseFloat(alphaMatch[1]);
+    if (alpha <= 0.3) return 'muted';
+    if (alpha <= 0.65) return 'body'; // was muted, now body range
+    if (alpha < 1) return 'body';
+  }
+  // Solid colors
+  if (bri > 200) return 'title'; // white or near-white
+  if (bri < 60) return 'title';  // black or near-black (title on light bg)
+  return 'body';
+}
+
 function applyPalette(newKey) {
   const oldP = PALETTES[currentPalette];
   const newP = PALETTES[newKey];
   if (!oldP || !newP || newKey === currentPalette) { currentPalette = newKey; updateSwatchesUI(newP); return; }
+  const isLight = (newKey !== 'dark' && newKey !== 'deusa_saturated');
 
-  // Build color map: old palette values → new palette values
+  // Build exact map + fallback classification
   const map = {};
   ['title','accent','negative','body','muted','divider','brand'].forEach(role => {
     map[oldP[role]] = newP[role];
   });
 
-  // Remap all text and rect colors
   canvas.getObjects().forEach(obj => {
     if (obj._isBgImage) return;
     if (obj.type === 'textbox') {
       if (obj._isPlaceholderLabel) {
-        const isLight = (newKey !== 'dark' && newKey !== 'deusa_saturated');
         obj.set('fill', isLight ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.2)');
       } else {
-        const mapped = map[obj.fill];
-        if (mapped) obj.set('fill', mapped);
+        const exact = map[obj.fill];
+        if (exact) { obj.set('fill', exact); }
+        else {
+          const role = classifyColor(obj.fill);
+          obj.set('fill', newP[role] || newP.body);
+        }
       }
     }
     if (obj.type === 'rect' && obj._isPlaceholder) {
-      // Placeholder boxes: adapt stroke/fill to background
-      const isLight = (newKey !== 'dark' && newKey !== 'deusa_saturated');
       obj.set({
         stroke: isLight ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.15)',
         fill: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.03)',
       });
     }
     if (obj.type === 'rect' && !obj._isPlaceholder) {
-      const mapped = map[obj.fill];
-      if (mapped) obj.set('fill', mapped);
-      if (obj.stroke) { const ms = map[obj.stroke]; if (ms) obj.set('stroke', ms); }
+      const exact = map[obj.fill];
+      if (exact) { obj.set('fill', exact); }
+      else {
+        const role = classifyColor(obj.fill);
+        obj.set('fill', newP[role] || newP.divider);
+      }
+      if (obj.stroke) {
+        const ms = map[obj.stroke];
+        obj.set('stroke', ms || (isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.12)'));
+      }
     }
   });
 
