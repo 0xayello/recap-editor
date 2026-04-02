@@ -1014,9 +1014,112 @@ function handleImageUpload(e) {
   e.target.value = '';
 }
 
+// ─── PALETTES PER BACKGROUND ───
+// Each palette maps semantic roles to colors, plus swatch options
+const PALETTES = {
+  dark: { // default black bg
+    name: 'Fundo Escuro',
+    title: '#FFFFFF',
+    accent: '#F7941D',
+    negative: '#E53935',
+    body: 'rgba(255,255,255,0.6)',
+    muted: 'rgba(255,255,255,0.4)',
+    divider: 'rgba(255,255,255,0.12)',
+    brand: '#F7941D',
+    swatches: ['#FFFFFF','#F7941D','#E53935','#000000','#1a1a1a','#888888'],
+  },
+  deusa_light: { // bg_deusa_light.png — light marble, needs dark text
+    name: 'Deusa Clara',
+    title: '#1a1a1a',
+    accent: '#B85A00',
+    negative: '#B71C1C',
+    body: 'rgba(0,0,0,0.65)',
+    muted: 'rgba(0,0,0,0.4)',
+    divider: 'rgba(0,0,0,0.15)',
+    brand: '#B85A00',
+    swatches: ['#1a1a1a','#B85A00','#B71C1C','#FFFFFF','#4a4a4a','#333333'],
+  },
+  deusa_saturated: { // bg_deusa_saturated.png — warm dark tones, high contrast
+    name: 'Deusa Saturada',
+    title: '#FFFFFF',
+    accent: '#FFB347',
+    negative: '#FF6B6B',
+    body: 'rgba(255,255,255,0.75)',
+    muted: 'rgba(255,255,255,0.45)',
+    divider: 'rgba(255,255,255,0.18)',
+    brand: '#FFB347',
+    swatches: ['#FFFFFF','#FFB347','#FF6B6B','#1a1a1a','#000000','#cccccc'],
+  },
+  louros: { // bg_louros.png — golden/beige, needs dark text
+    name: 'Louros',
+    title: '#1a1a1a',
+    accent: '#8B5E00',
+    negative: '#9B1B1B',
+    body: 'rgba(0,0,0,0.6)',
+    muted: 'rgba(0,0,0,0.35)',
+    divider: 'rgba(0,0,0,0.12)',
+    brand: '#8B5E00',
+    swatches: ['#1a1a1a','#8B5E00','#9B1B1B','#FFFFFF','#3d3d3d','#555555'],
+  },
+};
+
+let currentPalette = 'dark';
+
+function getBgKey(url) {
+  if (url.includes('deusa_light')) return 'deusa_light';
+  if (url.includes('deusa_saturated')) return 'deusa_saturated';
+  if (url.includes('louros')) return 'louros';
+  return 'dark';
+}
+
+function applyPalette(newKey) {
+  const oldP = PALETTES[currentPalette];
+  const newP = PALETTES[newKey];
+  if (!oldP || !newP || newKey === currentPalette) { currentPalette = newKey; updateSwatchesUI(newP); return; }
+
+  // Build color map: old palette values → new palette values
+  const map = {};
+  ['title','accent','negative','body','muted','divider','brand'].forEach(role => {
+    map[oldP[role]] = newP[role];
+  });
+
+  // Remap all text and rect colors
+  canvas.getObjects().forEach(obj => {
+    if (obj._isBgImage) return;
+    if (obj.type === 'textbox') {
+      const mapped = map[obj.fill];
+      if (mapped) obj.set('fill', mapped);
+    }
+    if (obj.type === 'rect' && !obj._isPlaceholder) {
+      const mapped = map[obj.fill];
+      if (mapped) obj.set('fill', mapped);
+      if (obj.stroke) { const ms = map[obj.stroke]; if (ms) obj.set('stroke', ms); }
+    }
+  });
+
+  currentPalette = newKey;
+  updateSwatchesUI(newP);
+  canvas.renderAll();
+}
+
+function updateSwatchesUI(p) {
+  // Update text color swatches
+  const swContainer = document.querySelector('.swatches:not(:has(.slidebgsw))');
+  if (swContainer) {
+    const swEls = swContainer.querySelectorAll('.sw');
+    p.swatches.forEach((c, i) => {
+      if (swEls[i]) {
+        swEls[i].dataset.color = c;
+        swEls[i].style.background = c;
+        if (c === '#000000' || c === '#1a1a1a') swEls[i].style.border = '1px solid #333';
+        else swEls[i].style.border = '';
+      }
+    });
+  }
+}
+
 function setBgImage(url) {
-  // Add background image as the bottom-most layer (full canvas, locked)
-  removeBgImage(); // remove existing bg image first
+  removeBgImage();
   fabric.Image.fromURL(url, function(img) {
     const scale = Math.max(DW / img.width, DH / img.height);
     img.set({
@@ -1027,8 +1130,8 @@ function setBgImage(url) {
       _isBgImage: true,
     });
     canvas.insertAt(img, 0);
+    applyPalette(getBgKey(url));
     canvas.renderAll();
-    // Highlight active thumb
     document.querySelectorAll('.bgimg-thumb').forEach(t => t.style.borderColor = 'transparent');
     event.target.closest('.bgimg-thumb').style.borderColor = '#F7941D';
   });
@@ -1037,6 +1140,7 @@ function setBgImage(url) {
 function removeBgImage() {
   const existing = canvas.getObjects().find(o => o._isBgImage);
   if (existing) canvas.remove(existing);
+  applyPalette('dark');
   canvas.renderAll();
   document.querySelectorAll('.bgimg-thumb').forEach(t => t.style.borderColor = t.title === 'Sem imagem' ? '#333' : 'transparent');
 }
