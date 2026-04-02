@@ -1177,8 +1177,59 @@ function updateSwatchesUI(p) {
   }
 }
 
+let globalBgUrl = null; // shared bg across all slides
+
 function setBgImage(url) {
-  removeBgImage();
+  globalBgUrl = url;
+  // Apply to current slide
+  _applyBgToCanvas(url);
+  applyPalette(getBgKey(url));
+  // Save current, then apply bg + palette to all other slides
+  saveCurrentSlide();
+  const cur = currentSlide;
+  for (let i = 0; i < slidesState.length; i++) {
+    if (i === cur) continue;
+    // Inject bg image data into each saved slide
+    const state = slidesState[i];
+    // Remove any existing bg image from saved objects
+    state.objects = state.objects.filter(o => !o._isBgImage);
+    // Add bg image reference
+    state.objects.unshift({
+      type: 'image', _src: url, _isBgImage: true, _isUploadedImage: false,
+      left: DW / 2, top: DH / 2, scaleX: 0, scaleY: 0, // placeholder, recalculated on load
+      originX: 'center', originY: 'center', opacity: 1,
+      selectable: false, evented: false,
+    });
+    // Remap colors in saved text/rect objects
+    const paletteKey = getBgKey(url);
+    const isLight = (paletteKey !== 'dark' && paletteKey !== 'deusa_saturated');
+    const newP = PALETTES[paletteKey];
+    state.objects.forEach(o => {
+      if (o._isBgImage) return;
+      if (o.type === 'textbox' && o._isPlaceholderLabel) {
+        o.fill = isLight ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.2)';
+      } else if (o.type === 'textbox') {
+        const role = classifyColor(o.fill);
+        o.fill = newP[role] || newP.body;
+      }
+      if (o.type === 'rect' && o._isPlaceholder) {
+        o.stroke = isLight ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.15)';
+        o.fill = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.03)';
+      } else if (o.type === 'rect' && !o._isBgImage) {
+        const role = classifyColor(o.fill);
+        o.fill = newP[role] || newP.divider;
+      }
+    });
+  }
+  document.querySelectorAll('.bgimg-thumb').forEach(t => t.style.borderColor = 'transparent');
+  event.target.closest('.bgimg-thumb').style.borderColor = '#F7941D';
+}
+
+function _applyBgToCanvas(url) {
+  // Remove existing bg from canvas
+  const existing = canvas.getObjects().find(o => o._isBgImage);
+  if (existing) canvas.remove(existing);
+  if (!url) return;
   fabric.Image.fromURL(url, function(img) {
     const scale = Math.max(DW / img.width, DH / img.height);
     img.set({
@@ -1189,18 +1240,40 @@ function setBgImage(url) {
       _isBgImage: true,
     });
     canvas.insertAt(img, 0);
-    applyPalette(getBgKey(url));
     canvas.renderAll();
-    document.querySelectorAll('.bgimg-thumb').forEach(t => t.style.borderColor = 'transparent');
-    event.target.closest('.bgimg-thumb').style.borderColor = '#F7941D';
   });
 }
 
 function removeBgImage() {
+  globalBgUrl = null;
   const existing = canvas.getObjects().find(o => o._isBgImage);
   if (existing) canvas.remove(existing);
   applyPalette('dark');
   canvas.renderAll();
+  // Remove bg from all saved slides too
+  saveCurrentSlide();
+  const cur = currentSlide;
+  const darkP = PALETTES.dark;
+  for (let i = 0; i < slidesState.length; i++) {
+    if (i === cur) continue;
+    const state = slidesState[i];
+    state.objects = state.objects.filter(o => !o._isBgImage);
+    state.objects.forEach(o => {
+      if (o.type === 'textbox' && o._isPlaceholderLabel) {
+        o.fill = 'rgba(255,255,255,0.2)';
+      } else if (o.type === 'textbox') {
+        const role = classifyColor(o.fill);
+        o.fill = darkP[role] || darkP.body;
+      }
+      if (o.type === 'rect' && o._isPlaceholder) {
+        o.stroke = 'rgba(255,255,255,0.15)';
+        o.fill = 'rgba(255,255,255,0.03)';
+      } else if (o.type === 'rect') {
+        const role = classifyColor(o.fill);
+        o.fill = darkP[role] || darkP.divider;
+      }
+    });
+  }
   document.querySelectorAll('.bgimg-thumb').forEach(t => t.style.borderColor = t.title === 'Sem imagem' ? '#333' : 'transparent');
 }
 
