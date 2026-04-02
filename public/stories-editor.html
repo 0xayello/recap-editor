@@ -277,124 +277,98 @@ const DW = Math.round(W * SCALE), DH = Math.round(H * SCALE);
 const F = 'Space Grotesk'; // primary font
 
 // ─── SLIDE DATA ───
-// Design rules:
-// - All text uses Space Grotesk
-// - Text centered within its block (textAlign: 'center')
-// - No bgColor on text elements — clean, floating text
-// - Image placeholders (dashed rects) where visuals go
+// Layout padrão: BOM DIGMA (y:200) → linha (y:250) → título (y:330) → subtítulo (y:560) → divisor (y:730) → conteúdo → CTA (y:1760)
+// Imagens SÓ quando a edição tem imagem real. Copy narrativa, não telegráfica.
 const SLIDES_DATA = [
-  { // Slide 1 — Hook (layout padrão: marca → título → subtítulo → imagem + legenda → CTA)
+  { // Slide 1 — Hook + Contexto (combinados)
     name: '1 · Hook',
     bg: '#000000',
     elements: [
-      // Marca top-left
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      // Título grande centralizado
       { type:'text', text:'PROJETOS ESTÃO\nFECHANDO AS PORTAS', x:80, y:330, w:920, font:F, size:80, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
-      // Subtítulo
-      { type:'text', text:'E em alguns deles pode existir\numa oportunidade para você.', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      // Divisor
-      { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      // Imagem da edição (print principal)
-      { type:'placeholder', x:80, y:800, w:920, h:460, label:'IMAGEM\nPrint CoinGecko $SUDO\n+204.3% (7d) — gráfico verde' },
-      // Legenda da imagem
-      { type:'text', text:'O preço do $SUDO disparou de U$0,009 para U$0,03\nem 2 horas, após a proposta para fechar o projeto\ne dissolver o tesouro da Sudoswap.', x:80, y:1300, w:920, font:F, size:20, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.5 },
-      // CTA bottom
-      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
-    ]
-  },
-  { // Slide 2 — Rapidinhas
-    name: '2 · Rapidinhas',
-    bg: '#000000',
-    elements: [
-      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
-      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'RAPIDINHAS\nDA SEMANA', x:80, y:330, w:920, font:F, size:80, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
-      { type:'text', text:'O que rolou de mais importante', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'Lido propõe buyback de U$20M em $LDO\nToken em mínimas históricas', x:80, y:800, w:920, font:F, size:26, weight:500, color:'#e0e0e0', align:'center', lineH:1.5 },
-      { type:'rect', x:340, y:960, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
-      { type:'text', text:'Lei de stablecoins trava nos EUA\nBancos bloqueiam "remuneração em cripto"', x:80, y:1000, w:920, font:F, size:26, weight:500, color:'#e0e0e0', align:'center', lineH:1.5 },
-      { type:'rect', x:340, y:1160, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
-      { type:'text', text:'Ethereum Foundation cria\n"Zona Econômica Ethereum"', x:80, y:1200, w:920, font:F, size:26, weight:500, color:'#e0e0e0', align:'center', lineH:1.5 },
-      { type:'rect', x:340, y:1340, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
-      { type:'text', text:'ICE investe mais U$600M na Polymarket\n(2o aporte — 1o foi de U$1B)', x:80, y:1380, w:920, font:F, size:26, weight:500, color:'#e0e0e0', align:'center', lineH:1.5 },
-      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
-    ]
-  },
-  { // Slide 3 — Contexto
-    name: '3 · Contexto',
-    bg: '#000000',
-    elements: [
-      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
-      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'POR QUE PROJETOS\nESTÃO FECHANDO?', x:80, y:330, w:920, font:F, size:72, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
-      { type:'text', text:'Protocolos descentralizados têm tesouros\ncom tokens, ETH, BTC e stablecoins.', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'placeholder', x:80, y:800, w:920, h:460, label:'IMAGEM\nDiagrama de tesouro de DAO\nTokens + ETH + stablecoins' },
-      { type:'text', text:'Quando o projeto perde o propósito,\na DAO vota por dissolver e distribuir\no tesouro entre holders.', x:80, y:1300, w:920, font:F, size:22, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.5 },
-      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
-    ]
-  },
-  { // Slide 4 — Caso Sudoswap
-    name: '4 · Sudoswap',
-    bg: '#000000',
-    elements: [
-      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
-      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'CASO\nSUDOSWAP', x:80, y:330, w:920, font:F, size:80, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
-      { type:'text', text:'27 de março: proposta de dissolver tesouro\n400 ETH para holders de $SUDO', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'E em alguns deles, pode existir\numa oportunidade pra você.', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
       { type:'placeholder', x:80, y:800, w:920, h:460, label:'IMAGEM\nPrint CoinGecko $SUDO\n+204.3% (7d) — gráfico verde' },
-      { type:'text', text:'Valor calculado: $0.03/token\nPreço antes: $0.009\n+200% em 2 horas', x:80, y:1300, w:920, font:F, size:22, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.5 },
+      { type:'text', text:'Quando o projeto perde o propósito, a DAO vota\npor dissolver e distribuir o tesouro entre holders.\nE aí nasce uma janela de arbitragem.', x:80, y:1300, w:920, font:F, size:22, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.5 },
       { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
-  { // Slide 5 — Caso Aura
-    name: '5 · Aura',
+  { // Slide 2 — Caso Sudoswap (sem imagem extra — já está no slide 1)
+    name: '2 · Sudoswap',
     bg: '#000000',
     elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'CASO\nAURA FINANCE', x:80, y:330, w:920, font:F, size:72, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
-      { type:'text', text:'Metaprotocolo nascido do Balancer\nControla 50%+ das emissões de $BAL', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'$SUDO\n+200% EM 2H', x:80, y:330, w:920, font:F, size:80, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'No dia 27 de março, rolou uma proposta\npra dissolver o tesouro da Sudoswap.', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'Balancer propõe eliminar emissões\n= Aura perde razão de existir', x:80, y:800, w:920, font:F, size:30, weight:600, color:'#E53935', align:'center', lineH:1.4 },
-      { type:'rect', x:340, y:960, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
-      { type:'text', text:'TESOURO', x:80, y:1010, w:920, font:F, size:20, weight:600, color:'rgba(255,255,255,0.35)', align:'center', lineH:1.2 },
-      { type:'text', text:'$1M imediato + $3M em 12 meses', x:80, y:1060, w:920, font:F, size:28, weight:500, color:'#e0e0e0', align:'center', lineH:1.4 },
-      { type:'text', text:'Valor de resgate: $0.0226/token\nPreço de mercado: $0.025', x:80, y:1200, w:920, font:F, size:26, weight:500, color:'#F7941D', align:'center', lineH:1.5 },
-      { type:'text', text:'Sem arbitragem aqui — preço já ajustou', x:80, y:1400, w:920, font:F, size:22, weight:400, color:'rgba(255,255,255,0.3)', align:'center', lineH:1.4 },
+      { type:'text', text:'Seriam 400 ETH pra dividir entre os holders\nde $SUDO. Fazendo as contas, cada token\nvalia cerca de $0.03 no resgate.', x:80, y:800, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'text', text:'Só que antes da proposta,\no token estava cotado a $0.009.', x:80, y:1020, w:920, font:F, size:28, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'text', text:'Em duas horas, o preço foi de $0.009\npra $0.03. Quem comprou antes\nda votação, triplicou.', x:80, y:1200, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
       { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
-  { // Slide 6 — Tese
-    name: '6 · Tese',
+  { // Slide 3 — Caso Aura (sem imagem — edição não tem)
+    name: '3 · Aura',
     bg: '#000000',
     elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'A TESE', x:80, y:330, w:920, font:F, size:80, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
-      { type:'text', text:'Onde mora a oportunidade\nde arbitragem em DAOs', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'placeholder', x:80, y:800, w:920, h:460, label:'IMAGEM\nVisual de oportunidade\nou diagrama de arbitragem' },
-      { type:'text', text:'Outros projetos descentralizados devem\npassar por situações semelhantes.\nA diferença entre preço de mercado\ne valor de resgate é onde mora o lucro.', x:80, y:1300, w:920, font:F, size:22, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.5 },
+      { type:'text', text:'NEM SEMPRE\nTEM JANELA', x:80, y:330, w:920, font:F, size:80, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'A Aura Finance é um metaprotocolo nascido\ndo Balancer. Controla mais de 50% das\nemissões de $BAL na governança.', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:780, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Só que o Balancer propôs eliminar\nas emissões de $BAL. Se passar,\na Aura perde a razão de existir.', x:80, y:850, w:920, font:F, size:28, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'text', text:'O tesouro tem $1M disponível agora\nmais $3M travados por 12 meses.\nValor de resgate: $0.0226 por token.', x:80, y:1080, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'text', text:'Mas o preço de mercado já está em $0.025.\nOu seja: o mercado já precificou.\nSem janela de arbitragem aqui.', x:80, y:1340, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.5 },
       { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
-  { // Slide 7 — CTA
-    name: '7 · CTA',
+  { // Slide 4 — Tese (sem imagem)
+    name: '4 · Tese',
     bg: '#000000',
     elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'LEIA A\nEDIÇÃO COMPLETA', x:80, y:330, w:920, font:F, size:72, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
-      { type:'text', text:'A newsletter cripto que você lê\nem 5 minutos e aplica na hora.', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'E POR QUE ISSO\nIMPORTA PRA VOCÊ?', x:80, y:330, w:920, font:F, size:72, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'Acreditamos que outros projetos\ndescentralizados vão passar por\nsituações parecidas nos próximos meses.', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'rect', x:360, y:780, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'A lógica é simples: quando uma DAO\nvota pra dissolver o tesouro, o valor\nde resgate por token fica definido.', x:80, y:850, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'text', text:'Se o mercado ainda não precificou isso,\na diferença entre o preço de mercado\ne o valor de resgate é onde mora o lucro.', x:80, y:1100, w:920, font:F, size:28, weight:500, color:'#F7941D', align:'center', lineH:1.5 },
+      { type:'text', text:'Fique de olho em propostas de dissolução\nem DAOs com baixa atividade.', x:80, y:1380, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.5 },
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 5 — Rapidinhas (penúltimo)
+    name: '5 · Rapidinhas',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'RAPIDINHAS\nDA SEMANA', x:80, y:330, w:920, font:F, size:72, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'O que mais rolou de importante', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'placeholder', x:80, y:800, w:920, h:460, label:'IMAGEM\nCard Substack Bom Digma' },
-      { type:'text', text:'Código da Gota: FECHANDOASPORTAS\nResgate em gotas.social', x:80, y:1300, w:920, font:F, size:22, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.5 },
-      { type:'text', text:'Link na bio ↗', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+      { type:'text', text:'A Lido propôs um buyback de U$20M\nem $LDO. O token bateu mínimas\nhistóricas e a DAO quer reagir.', x:80, y:800, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'rect', x:340, y:990, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
+      { type:'text', text:'A lei de stablecoins travou nos EUA.\nO setor bancário bloqueou por medo\nde empresas pagarem em cripto.', x:80, y:1030, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'rect', x:340, y:1220, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
+      { type:'text', text:'A Ethereum Foundation criou a\n"Zona Econômica Ethereum" junto\ncom a Gnosis e a Zisk.', x:80, y:1260, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'rect', x:340, y:1440, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
+      { type:'text', text:'A ICE colocou mais U$600M na Polymarket.\nÉ o segundo aporte — o primeiro foi\nde U$1 bilhão.', x:80, y:1480, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 6 — CTA (último)
+    name: '6 · CTA',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'QUER RECEBER MAIS\nEDIÇÕES COMO ESSA?', x:80, y:330, w:920, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'Se inscreva de graça na Bom Digma.\nA newsletter cripto que você recebe\ntodos os dias e lê em 5 minutos.', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'rect', x:360, y:780, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'placeholder', x:80, y:850, w:920, h:460, label:'IMAGEM\nCard Substack Bom Digma' },
+      { type:'text', text:'Reage esse stories para receber\no link na sua DM.', x:80, y:1360, w:920, font:F, size:24, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
     ]
   }
 ];
