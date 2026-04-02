@@ -216,6 +216,13 @@ input[type=color].cpick { width:32px; height:26px; border:1px solid var(--border
         <div class="sw slidebgsw" style="background:#FFFFFF" data-color="#FFFFFF"></div>
         <div class="sw slidebgsw" style="background:#F7941D" data-color="#F7941D"></div>
       </div>
+      <span class="slbl" style="margin-top:12px">Imagem de Fundo</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <div class="bgimg-thumb" onclick="setBgImage('/bg_deusa_light.png')" style="width:54px;height:54px;border-radius:8px;cursor:pointer;background:url(/bg_deusa_light.png) center/cover;border:2px solid transparent;transition:.12s" title="Deusa Clara"></div>
+        <div class="bgimg-thumb" onclick="setBgImage('/bg_deusa_saturated.png')" style="width:54px;height:54px;border-radius:8px;cursor:pointer;background:url(/bg_deusa_saturated.png) center/cover;border:2px solid transparent;transition:.12s" title="Deusa Saturada"></div>
+        <div class="bgimg-thumb" onclick="setBgImage('/bg_louros.png')" style="width:54px;height:54px;border-radius:8px;cursor:pointer;background:url(/bg_louros.png) center/cover;border:2px solid transparent;transition:.12s" title="Louros"></div>
+        <div class="bgimg-thumb" onclick="removeBgImage()" style="width:54px;height:54px;border-radius:8px;cursor:pointer;background:#000;border:2px solid #333;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;transition:.12s" title="Sem imagem">✕</div>
+      </div>
     </div>
     <!-- ADD ELEMENTS -->
     <div class="sec">
@@ -544,7 +551,10 @@ function saveCurrentSlide() {
     }
     if (o.type === 'image') {
       base._src = o.getSrc();
-      base._isUploadedImage = true;
+      base._isUploadedImage = o._isUploadedImage || false;
+      base._isBgImage = o._isBgImage || false;
+      base.originX = o.originX; base.originY = o.originY;
+      base.selectable = o.selectable; base.evented = o.evented;
     }
     return base;
   });
@@ -596,18 +606,23 @@ function loadSlide(idx) {
       });
       obj._isPlaceholder = d._isPlaceholder || false;
     } else if (d.type === 'image' && d._src) {
-      // Async image load — handled separately
+      const isBg = d._isBgImage || false;
       fabric.Image.fromURL(d._src, function(img) {
         img.set({
           left: d.left, top: d.top,
           scaleX: d.scaleX || 1, scaleY: d.scaleY || 1,
           opacity: d.opacity != null ? d.opacity : 1,
-          _isUploadedImage: true,
+          originX: d.originX || 'left', originY: d.originY || 'top',
+          selectable: d.selectable !== false && !isBg,
+          evented: !isBg,
+          _isUploadedImage: d._isUploadedImage || false,
+          _isBgImage: isBg,
         });
-        canvas.add(img);
+        if (isBg) canvas.insertAt(img, 0);
+        else canvas.add(img);
         canvas.renderAll();
       });
-      return; // skip the canvas.add below
+      return;
     }
     if (obj) canvas.add(obj);
   });
@@ -997,6 +1012,33 @@ function handleImageUpload(e) {
   };
   reader.readAsDataURL(file);
   e.target.value = '';
+}
+
+function setBgImage(url) {
+  // Add background image as the bottom-most layer (full canvas, locked)
+  removeBgImage(); // remove existing bg image first
+  fabric.Image.fromURL(url, function(img) {
+    const scale = Math.max(DW / img.width, DH / img.height);
+    img.set({
+      left: DW / 2, top: DH / 2,
+      originX: 'center', originY: 'center',
+      scaleX: scale, scaleY: scale,
+      selectable: false, evented: false,
+      _isBgImage: true,
+    });
+    canvas.insertAt(img, 0);
+    canvas.renderAll();
+    // Highlight active thumb
+    document.querySelectorAll('.bgimg-thumb').forEach(t => t.style.borderColor = 'transparent');
+    event.target.closest('.bgimg-thumb').style.borderColor = '#F7941D';
+  });
+}
+
+function removeBgImage() {
+  const existing = canvas.getObjects().find(o => o._isBgImage);
+  if (existing) canvas.remove(existing);
+  canvas.renderAll();
+  document.querySelectorAll('.bgimg-thumb').forEach(t => t.style.borderColor = t.title === 'Sem imagem' ? '#333' : 'transparent');
 }
 
 function moveLayer(dir) {
