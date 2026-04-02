@@ -301,11 +301,11 @@ const SLIDES_DATA = [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
       { type:'text', text:'$SUDO\n+200% EM 2H', x:80, y:330, w:920, font:F, size:80, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
-      { type:'text', text:'No dia 27 de março, rolou uma proposta\npra dissolver o tesouro da Sudoswap.', x:140, y:560, w:800, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'No dia 27 de março,\nrolou uma proposta\npra dissolver o tesouro da Sudoswap.', x:140, y:520, w:800, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'Seriam 400 ETH pra dividir entre os holders\nde $SUDO. Fazendo as contas, cada token\nvalia cerca de $0.03 no resgate.', x:80, y:800, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
-      { type:'text', text:'Só que antes da proposta,\no token estava cotado a $0.009.', x:80, y:1020, w:920, font:F, size:28, weight:500, color:'#E53935', align:'center', lineH:1.4 },
-      { type:'text', text:'Em duas horas, o preço foi de $0.009\npra $0.03. Quem comprou antes\nda votação, triplicou.', x:80, y:1200, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'text', text:'Seriam 400 ETH pra dividir\nentre os holders de $SUDO.\nFazendo as contas, cada token\nvalia cerca de $0.03 no resgate.', x:80, y:800, w:920, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'Só que antes da proposta,\no token estava cotado a $0.009.', x:80, y:1080, w:920, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'text', text:'Em duas horas, o preço foi de $0.009\npra $0.03. Quem comprou antes\nda votação, triplicou.', x:80, y:1280, w:920, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1760, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
@@ -410,6 +410,46 @@ window.addEventListener('load', () => {
   loadSlide(0);
   setupEvents();
   setupProps();
+
+  // Apply Louros background by default on all slides
+  setTimeout(() => {
+    _applyBgToCanvas('/bg_louros.png');
+    applyPalette('louros');
+    saveCurrentSlide();
+    // Remap all other slides to louros palette
+    const lourosP = PALETTES.louros;
+    for (let i = 0; i < slidesState.length; i++) {
+      if (i === currentSlide) continue;
+      const state = slidesState[i];
+      state.objects = state.objects.filter(o => !o._isBgImage);
+      state.objects.unshift({
+        type: 'image', _src: '/bg_louros.png', _isBgImage: true, _isUploadedImage: false,
+        left: DW / 2, top: DH / 2, scaleX: 0, scaleY: 0,
+        originX: 'center', originY: 'center', opacity: 1,
+        selectable: false, evented: false,
+      });
+      state.objects.forEach(o => {
+        if (o._isBgImage) return;
+        if (o.type === 'textbox' && o._isPlaceholderLabel) {
+          o.fill = 'rgba(0,0,0,0.3)';
+        } else if (o.type === 'textbox') {
+          const role = classifyColor(o.fill);
+          o.fill = lourosP[role] || lourosP.body;
+        }
+        if (o.type === 'rect' && o._isPlaceholder) {
+          o.stroke = 'rgba(0,0,0,0.35)';
+          o.fill = 'rgba(0,0,0,0.06)';
+        } else if (o.type === 'rect' && !o._isBgImage) {
+          const role = classifyColor(o.fill);
+          o.fill = lourosP[role] || lourosP.divider;
+        }
+      });
+    }
+    // Highlight Louros thumbnail
+    document.querySelectorAll('.bgimg-thumb').forEach(t => {
+      t.style.borderColor = t.title === 'Louros' ? '#F7941D' : 'transparent';
+    });
+  }, 100);
 });
 
 function buildSlideJSON(sd) {
@@ -1161,7 +1201,7 @@ function updateSwatchesUI(p) {
   }
 }
 
-let globalBgUrl = null; // shared bg across all slides
+let globalBgUrl = '/bg_louros.png'; // shared bg across all slides — louros by default
 
 function setBgImage(url) {
   globalBgUrl = url;
