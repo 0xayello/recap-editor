@@ -230,6 +230,18 @@ input[type=color].cpick { width:32px; height:26px; border:1px solid var(--border
       <button class="addbtn" onclick="addDivider()">+ Linha Divisória</button>
       <button class="addbtn" onclick="addBox('#F7941D',0.12)">+ Box Laranja</button>
       <button class="addbtn" onclick="addBox('#FFFFFF',0.06)">+ Box Branco</button>
+      <input type="file" id="imgUpload" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+      <button class="addbtn" onclick="document.getElementById('imgUpload').click()" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#e0e0e0">📷 Upload Imagem</button>
+    </div>
+    <!-- LAYERS -->
+    <div class="sec" id="secLayers">
+      <span class="slbl">Camadas</span>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="tbtn" onclick="moveLayer('front')" style="font-size:11px">⬆ Topo</button>
+        <button class="tbtn" onclick="moveLayer('up')" style="font-size:11px">↑ Subir</button>
+        <button class="tbtn" onclick="moveLayer('down')" style="font-size:11px">↓ Descer</button>
+        <button class="tbtn" onclick="moveLayer('back')" style="font-size:11px">⬇ Fundo</button>
+      </div>
     </div>
   </div>
 
@@ -270,80 +282,89 @@ const SLIDES_DATA = [
     elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:120, w:920, font:F, size:28, weight:500, color:'#F7941D', align:'center', lineH:1.1 },
       { type:'rect', x:80, y:190, w:920, h:3, fill:'#F7941D', opacity:0.5, rx:2 },
-      { type:'placeholder', x:280, y:240, w:520, h:360, label:'IMAGEM\nVisual de "cofre" ou acervo' },
-      { type:'text', text:'O ACERVO\nSECRETO', x:80, y:650, w:920, font:F, size:72, weight:700, color:'#FFFFFF', align:'center', lineH:1.05 },
-      { type:'text', text:'DA PARADIGMA', x:80, y:860, w:920, font:F, size:36, weight:600, color:'#F7941D', align:'center', lineH:1.1 },
-      { type:'rect', x:340, y:950, w:400, h:3, fill:'rgba(255,255,255,0.15)', opacity:1, rx:2 },
-      { type:'text', text:'Mais de 150 links curados\npara explorar o mercado cripto\ncomo a gente faz.', x:80, y:1010, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
-      { type:'text', text:'↑ SWIPE PARA VER', x:80, y:1720, w:920, font:F, size:22, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+      { type:'placeholder', x:240, y:250, w:600, h:380, label:'IMAGEM\nVisual de portas fechando\nou projeto encerrando' },
+      { type:'text', text:'PROJETOS ESTÃO\nFECHANDO\nAS PORTAS', x:80, y:680, w:920, font:F, size:60, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'E em alguns deles\npode existir uma oportunidade\npara você.', x:80, y:1020, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'text', text:'30 MAR 2026', x:80, y:1250, w:920, font:F, size:20, weight:500, color:'rgba(255,255,255,0.25)', align:'center', lineH:1.2 },
+      { type:'text', text:'↑ SWIPE PARA LER', x:80, y:1720, w:920, font:F, size:22, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
-  { // Slide 2 — Problema
-    name: '2 · Problema',
+  { // Slide 2 — Rapidinhas
+    name: '2 · Rapidinhas',
     bg: '#000000',
     elements: [
-      { type:'text', text:'O PROBLEMA', x:80, y:140, w:920, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.0 },
-      { type:'text', text:'NÃO É FALTA\nDE INFORMAÇÃO', x:80, y:300, w:920, font:F, size:48, weight:700, color:'#E53935', align:'center', lineH:1.15 },
-      { type:'rect', x:340, y:500, w:400, h:3, fill:'rgba(255,255,255,0.12)', opacity:1, rx:2 },
-      { type:'text', text:'É O EXCESSO DELA', x:80, y:560, w:920, font:F, size:48, weight:700, color:'#F7941D', align:'center', lineH:1.1 },
-      { type:'placeholder', x:180, y:720, w:720, h:360, label:'IMAGEM\nVisual de overload / caos informacional' },
-      { type:'text', text:'Você abre o Twitter, Telegram,\nDiscord, YouTube...\ne não sabe por onde começar.', x:80, y:1150, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.55)', align:'center', lineH:1.5 },
+      { type:'text', text:'RAPIDINHAS', x:80, y:140, w:920, font:F, size:48, weight:700, color:'#F7941D', align:'center', lineH:1.0 },
+      { type:'text', text:'O que rolou na semana', x:80, y:240, w:920, font:F, size:22, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.2 },
+      { type:'rect', x:200, y:310, w:680, h:3, fill:'#F7941D', opacity:0.35, rx:2 },
+      { type:'text', text:'Lido propõe buyback\nde U$20M em $LDO', x:80, y:380, w:920, font:F, size:28, weight:600, color:'#e0e0e0', align:'center', lineH:1.4 },
+      { type:'text', text:'Token em mínimas históricas,\nDAO quer reagir', x:80, y:490, w:920, font:F, size:22, weight:400, color:'rgba(255,255,255,0.45)', align:'center', lineH:1.45 },
+      { type:'rect', x:340, y:600, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
+      { type:'text', text:'Lei de stablecoins trava nos EUA\nBancos bloqueiam por medo\nde "remuneração em cripto"', x:80, y:640, w:920, font:F, size:28, weight:600, color:'#e0e0e0', align:'center', lineH:1.4 },
+      { type:'rect', x:340, y:820, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
+      { type:'text', text:'Ethereum Foundation cria\n"Zona Econômica Ethereum"\ncom Gnosis e Zisk', x:80, y:860, w:920, font:F, size:28, weight:600, color:'#e0e0e0', align:'center', lineH:1.4 },
+      { type:'rect', x:340, y:1050, w:400, h:2, fill:'rgba(255,255,255,0.08)', opacity:1, rx:1 },
+      { type:'text', text:'ICE investe mais U$600M\nna Polymarket\n(2o aporte — 1o foi de U$1B)', x:80, y:1090, w:920, font:F, size:28, weight:600, color:'#e0e0e0', align:'center', lineH:1.4 },
     ]
   },
-  { // Slide 3 — O que é
-    name: '3 · O Acervo',
+  { // Slide 3 — Contexto
+    name: '3 · Contexto',
     bg: '#000000',
     elements: [
-      { type:'text', text:'A SOLUÇÃO', x:80, y:140, w:920, font:F, size:24, weight:500, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.2 },
-      { type:'text', text:'150+ LINKS\nCURADOS', x:80, y:210, w:920, font:F, size:64, weight:700, color:'#F7941D', align:'center', lineH:1.1 },
-      { type:'rect', x:200, y:430, w:680, h:3, fill:'#F7941D', opacity:0.35, rx:2 },
-      { type:'text', text:'Organizados por categoria\ncom explicações diretas\ne links de acesso', x:80, y:490, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
-      { type:'placeholder', x:180, y:720, w:720, h:500, label:'IMAGEM\nPrint da planilha / spreadsheet' },
-      { type:'text', text:'Tudo que a equipe da Paradigma\nusa no dia a dia.', x:80, y:1300, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.5)', align:'center', lineH:1.45 },
+      { type:'text', text:'POR QUE PROJETOS\nESTÃO FECHANDO?', x:80, y:140, w:920, font:F, size:52, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'rect', x:200, y:340, w:680, h:3, fill:'#E53935', opacity:0.5, rx:2 },
+      { type:'text', text:'Protocolos descentralizados\ntêm tesouros com tokens,\nETH, BTC e stablecoins.', x:80, y:410, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'placeholder', x:180, y:640, w:720, h:300, label:'IMAGEM\nDiagrama de tesouro de DAO' },
+      { type:'text', text:'Quando o projeto perde\no propósito, a DAO vota\npor dissolver e distribuir\no tesouro entre holders.', x:80, y:1020, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'text', text:'E aí nasce uma\noportunidade de arbitragem.', x:80, y:1320, w:920, font:F, size:32, weight:600, color:'#F7941D', align:'center', lineH:1.35 },
     ]
   },
-  { // Slide 4 — Categorias
-    name: '4 · Categorias',
+  { // Slide 4 — Caso Sudoswap
+    name: '4 · Sudoswap',
     bg: '#000000',
     elements: [
-      { type:'text', text:'O QUE TEM DENTRO', x:80, y:140, w:920, font:F, size:48, weight:700, color:'#FFFFFF', align:'center', lineH:1.0 },
-      { type:'rect', x:200, y:260, w:680, h:3, fill:'#F7941D', opacity:0.5, rx:2 },
-      { type:'text', text:'🧭  Fontes de notícia\nsem sensacionalismo', x:80, y:340, w:920, font:F, size:28, weight:500, color:'#e0e0e0', align:'center', lineH:1.4 },
-      { type:'text', text:'🧠  Newsletters\nbem escritas', x:80, y:510, w:920, font:F, size:28, weight:500, color:'#e0e0e0', align:'center', lineH:1.4 },
-      { type:'text', text:'📊  Dashboards\nTVL, yield, volume', x:80, y:680, w:920, font:F, size:28, weight:500, color:'#e0e0e0', align:'center', lineH:1.4 },
-      { type:'text', text:'🎬  Canais de YouTube', x:80, y:850, w:920, font:F, size:28, weight:500, color:'#e0e0e0', align:'center', lineH:1.4 },
-      { type:'text', text:'🔎  Perfis do X\ncom insights reais', x:80, y:970, w:920, font:F, size:28, weight:500, color:'#e0e0e0', align:'center', lineH:1.4 },
-      { type:'text', text:'🎧  Podcasts', x:80, y:1140, w:920, font:F, size:28, weight:500, color:'#e0e0e0', align:'center', lineH:1.4 },
-      { type:'text', text:'🧪  Protocolos DeFi\ncom utilidade real', x:80, y:1260, w:920, font:F, size:28, weight:500, color:'#e0e0e0', align:'center', lineH:1.4 },
-      { type:'text', text:'🛡️  Ferramentas anti-golpe', x:80, y:1430, w:920, font:F, size:28, weight:500, color:'#e0e0e0', align:'center', lineH:1.4 },
+      { type:'text', text:'CASO', x:80, y:140, w:920, font:F, size:24, weight:500, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.2 },
+      { type:'text', text:'SUDOSWAP', x:80, y:190, w:920, font:F, size:72, weight:700, color:'#F7941D', align:'center', lineH:1.0 },
+      { type:'rect', x:200, y:320, w:680, h:3, fill:'#F7941D', opacity:0.5, rx:2 },
+      { type:'text', text:'27 de março:\nproposta de dissolver tesouro', x:80, y:390, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.5)', align:'center', lineH:1.45 },
+      { type:'text', text:'400 ETH', x:80, y:530, w:920, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.0 },
+      { type:'text', text:'para holders de $SUDO', x:80, y:630, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.45)', align:'center', lineH:1.2 },
+      { type:'rect', x:340, y:710, w:400, h:2, fill:'rgba(255,255,255,0.1)', opacity:1, rx:1 },
+      { type:'text', text:'Valor calculado:', x:80, y:760, w:920, font:F, size:22, weight:400, color:'rgba(255,255,255,0.35)', align:'center', lineH:1.2 },
+      { type:'text', text:'$0.03 / token', x:80, y:810, w:920, font:F, size:48, weight:700, color:'#F7941D', align:'center', lineH:1.1 },
+      { type:'text', text:'Preço antes da proposta:', x:80, y:920, w:920, font:F, size:22, weight:400, color:'rgba(255,255,255,0.35)', align:'center', lineH:1.2 },
+      { type:'text', text:'$0.009', x:80, y:970, w:920, font:F, size:48, weight:700, color:'#E53935', align:'center', lineH:1.1 },
+      { type:'placeholder', x:180, y:1100, w:720, h:300, label:'IMAGEM\nGráfico $SUDO +200% em 2h' },
+      { type:'text', text:'+200% em 2 horas', x:80, y:1460, w:920, font:F, size:40, weight:700, color:'#F7941D', align:'center', lineH:1.1 },
     ]
   },
-  { // Slide 5 — Como acessar
-    name: '5 · Acesso',
+  { // Slide 5 — Caso Aura
+    name: '5 · Aura',
     bg: '#000000',
     elements: [
-      { type:'text', text:'COMO ACESSAR', x:80, y:140, w:920, font:F, size:56, weight:700, color:'#F7941D', align:'center', lineH:1.0 },
-      { type:'text', text:'A planilha é gratuita\nmas exclusiva', x:80, y:280, w:920, font:F, size:28, weight:400, color:'rgba(255,255,255,0.5)', align:'center', lineH:1.4 },
-      { type:'rect', x:200, y:410, w:680, h:3, fill:'#F7941D', opacity:0.35, rx:2 },
-      { type:'text', text:'OPÇÃO 1', x:80, y:490, w:920, font:F, size:24, weight:600, color:'rgba(255,255,255,0.35)', align:'center', lineH:1.2 },
-      { type:'text', text:'30+ GOTAS', x:80, y:540, w:920, font:F, size:52, weight:700, color:'#F7941D', align:'center', lineH:1.1 },
-      { type:'text', text:'Acumule 30 Gotas lendo\na Bom Digma todo dia\n(são grátis e cumulativas)', x:80, y:640, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.55)', align:'center', lineH:1.5 },
-      { type:'rect', x:340, y:840, w:400, h:2, fill:'rgba(255,255,255,0.1)', opacity:1, rx:1 },
-      { type:'text', text:'OPÇÃO 2', x:80, y:900, w:920, font:F, size:24, weight:600, color:'rgba(255,255,255,0.35)', align:'center', lineH:1.2 },
-      { type:'text', text:'10 INDICAÇÕES', x:80, y:950, w:920, font:F, size:52, weight:700, color:'#F7941D', align:'center', lineH:1.1 },
-      { type:'text', text:'Traga 10 novos leitores\ne receba o acesso\nautomaticamente por e-mail', x:80, y:1060, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.55)', align:'center', lineH:1.5 },
-      { type:'placeholder', x:240, y:1280, w:600, h:200, label:'IMAGEM\nPrint do leaderboard' },
+      { type:'text', text:'CASO', x:80, y:140, w:920, font:F, size:24, weight:500, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.2 },
+      { type:'text', text:'AURA FINANCE', x:80, y:190, w:920, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.0 },
+      { type:'rect', x:200, y:320, w:680, h:3, fill:'rgba(255,255,255,0.15)', opacity:1, rx:2 },
+      { type:'text', text:'Metaprotocolo nascido do Balancer\nControla 50%+ das emissões de $BAL', x:80, y:400, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.55)', align:'center', lineH:1.45 },
+      { type:'text', text:'Balancer propõe\neliminar emissões de $BAL', x:80, y:560, w:920, font:F, size:30, weight:600, color:'#E53935', align:'center', lineH:1.35 },
+      { type:'text', text:'= Aura perde razão de existir', x:80, y:700, w:920, font:F, size:28, weight:500, color:'rgba(255,255,255,0.5)', align:'center', lineH:1.3 },
+      { type:'rect', x:340, y:800, w:400, h:2, fill:'rgba(255,255,255,0.1)', opacity:1, rx:1 },
+      { type:'text', text:'TESOURO', x:80, y:860, w:920, font:F, size:22, weight:600, color:'rgba(255,255,255,0.35)', align:'center', lineH:1.2 },
+      { type:'text', text:'$1M imediato\n+ $3M em 12 meses\n(locked no Balancer)', x:80, y:910, w:920, font:F, size:28, weight:500, color:'#e0e0e0', align:'center', lineH:1.5 },
+      { type:'text', text:'Valor de resgate:\n$0.0226 / token', x:80, y:1140, w:920, font:F, size:28, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
+      { type:'text', text:'Preço de mercado:\n$0.025', x:80, y:1310, w:920, font:F, size:28, weight:500, color:'rgba(255,255,255,0.5)', align:'center', lineH:1.4 },
+      { type:'text', text:'Sem arbitragem aqui\n(preço já ajustou)', x:80, y:1500, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.3)', align:'center', lineH:1.4 },
     ]
   },
-  { // Slide 6 — Bônus
-    name: '6 · Bônus',
+  { // Slide 6 — Tese
+    name: '6 · Tese',
     bg: '#000000',
     elements: [
-      { type:'text', text:'E TEM MAIS', x:80, y:140, w:920, font:F, size:56, weight:700, color:'#FFFFFF', align:'center', lineH:1.0 },
+      { type:'text', text:'A TESE', x:80, y:140, w:920, font:F, size:64, weight:700, color:'#F7941D', align:'center', lineH:1.0 },
       { type:'rect', x:200, y:270, w:680, h:3, fill:'#F7941D', opacity:0.5, rx:2 },
-      { type:'text', text:'Indicações também desbloqueiam\nprêmios físicos:', x:80, y:340, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.5)', align:'center', lineH:1.45 },
-      { type:'placeholder', x:180, y:500, w:720, h:500, label:'IMAGEM\nFotos dos prêmios\n(chaveiro Pizza Day,\nmoeda secreta, case)' },
-      { type:'text', text:'🔑  Chaveiro Pizza Day\n🪙  Moeda com compartimento secreto\n💼  Case exclusivo Bom Digma', x:80, y:1080, w:920, font:F, size:28, weight:500, color:'#F7941D', align:'center', lineH:1.6 },
+      { type:'placeholder', x:180, y:340, w:720, h:360, label:'IMAGEM\nVisual de oportunidade\nou "diamante no lixo"' },
+      { type:'text', text:'Outros projetos\ndescentralizados devem\npassar por situações\nsemelhantes nos próximos meses.', x:80, y:780, w:920, font:F, size:30, weight:500, color:'#e0e0e0', align:'center', lineH:1.5 },
+      { type:'text', text:'Fique atento a propostas\nde dissolução de tesouro\nem DAOs com baixa atividade.', x:80, y:1080, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.5)', align:'center', lineH:1.5 },
+      { type:'text', text:'A diferença entre o preço\nde mercado e o valor de resgate\né onde mora o lucro.', x:80, y:1340, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.5)', align:'center', lineH:1.5 },
     ]
   },
   { // Slide 7 — CTA
@@ -355,10 +376,10 @@ const SLIDES_DATA = [
       { type:'text', text:'A newsletter cripto que\nvocê lê em 5 minutos\ne aplica na hora.', x:80, y:540, w:920, font:F, size:30, weight:400, color:'rgba(255,255,255,0.65)', align:'center', lineH:1.5 },
       { type:'rect', x:340, y:780, w:400, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
       { type:'text', text:'Código da Gota do dia:', x:80, y:840, w:920, font:F, size:24, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.2 },
-      { type:'text', text:'BOMDIGMA', x:80, y:900, w:920, font:F, size:56, weight:700, color:'#F7941D', align:'center', lineH:1.1 },
-      { type:'text', text:'Resgate em gotas.social', x:80, y:1010, w:920, font:F, size:22, weight:400, color:'rgba(255,255,255,0.35)', align:'center', lineH:1.2 },
-      { type:'placeholder', x:190, y:1100, w:700, h:300, label:'IMAGEM\nCard Substack Bom Digma' },
-      { type:'text', text:'Link na bio ↗', x:80, y:1500, w:920, font:F, size:32, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+      { type:'text', text:'FECHANDOASPORTAS', x:80, y:900, w:920, font:F, size:44, weight:700, color:'#F7941D', align:'center', lineH:1.1 },
+      { type:'text', text:'Resgate em gotas.social', x:80, y:1000, w:920, font:F, size:22, weight:400, color:'rgba(255,255,255,0.35)', align:'center', lineH:1.2 },
+      { type:'placeholder', x:190, y:1080, w:700, h:300, label:'IMAGEM\nCard Substack Bom Digma' },
+      { type:'text', text:'Link na bio ↗', x:80, y:1480, w:920, font:F, size:32, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   }
 ];
@@ -513,6 +534,10 @@ function saveCurrentSlide() {
         _isPlaceholder: o._isPlaceholder,
       });
     }
+    if (o.type === 'image') {
+      base._src = o.getSrc();
+      base._isUploadedImage = true;
+    }
     return base;
   });
   slidesState[currentSlide] = {
@@ -562,6 +587,19 @@ function loadSlide(idx) {
         hasControls: d.hasControls !== false,
       });
       obj._isPlaceholder = d._isPlaceholder || false;
+    } else if (d.type === 'image' && d._src) {
+      // Async image load — handled separately
+      fabric.Image.fromURL(d._src, function(img) {
+        img.set({
+          left: d.left, top: d.top,
+          scaleX: d.scaleX || 1, scaleY: d.scaleY || 1,
+          opacity: d.opacity != null ? d.opacity : 1,
+          _isUploadedImage: true,
+        });
+        canvas.add(img);
+        canvas.renderAll();
+      });
+      return; // skip the canvas.add below
     }
     if (obj) canvas.add(obj);
   });
@@ -928,6 +966,41 @@ function addDivider() {
   canvas.renderAll();
 }
 
+function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    fabric.Image.fromURL(evt.target.result, function(img) {
+      // Scale image to fit within canvas width
+      const maxW = 920 * SCALE;
+      const scale = Math.min(maxW / img.width, (H * SCALE * 0.5) / img.height);
+      img.set({
+        left: ((W - 920) / 2) * SCALE,
+        top: 300 * SCALE,
+        scaleX: scale,
+        scaleY: scale,
+        _isUploadedImage: true,
+      });
+      canvas.add(img);
+      canvas.setActiveObject(img);
+      canvas.renderAll();
+    });
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function moveLayer(dir) {
+  const obj = canvas.getActiveObject();
+  if (!obj) return;
+  if (dir === 'front') canvas.bringToFront(obj);
+  else if (dir === 'up') canvas.bringForward(obj);
+  else if (dir === 'down') canvas.sendBackwards(obj);
+  else if (dir === 'back') canvas.sendToBack(obj);
+  canvas.renderAll();
+}
+
 function deleteSelected() {
   const obj = canvas.getActiveObject();
   if (obj) { canvas.remove(obj); canvas.renderAll(); hideProps(); }
@@ -959,12 +1032,13 @@ function duplicateSelected() {
 }
 
 // ─── EXPORT ───
-function exportCurrent() {
+async function exportCurrent() {
   saveCurrentSlide();
   const expCanvas = new fabric.StaticCanvas(null, { width: W, height: H, backgroundColor: canvas.backgroundColor });
   const scaleUp = W / DW;
   const objects = canvas.getObjects();
   if (objects.length === 0) { doExport(expCanvas); return; }
+  const imgPromises = [];
   objects.forEach(o => {
     let c;
     if (o.type === 'textbox') {
@@ -1000,9 +1074,23 @@ function exportCurrent() {
         strokeWidth: (o.strokeWidth || 0) * scaleUp,
         strokeDashArray: o.strokeDashArray ? o.strokeDashArray.map(v => v * scaleUp) : null,
       });
+    } else if (o.type === 'image') {
+      imgPromises.push(new Promise(resolve => {
+        fabric.Image.fromURL(o.getSrc(), function(img) {
+          img.set({
+            left: o.left * scaleUp, top: o.top * scaleUp,
+            scaleX: (o.scaleX || 1) * scaleUp,
+            scaleY: (o.scaleY || 1) * scaleUp,
+            opacity: o.opacity != null ? o.opacity : 1,
+          });
+          expCanvas.add(img);
+          resolve();
+        });
+      }));
     }
     if (c) expCanvas.add(c);
   });
+  await Promise.all(imgPromises);
   expCanvas.renderAll();
   doExport(expCanvas);
 }
