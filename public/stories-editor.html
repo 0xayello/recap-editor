@@ -536,15 +536,14 @@ function buildSlideJSON(sd) {
         _isPlaceholderLabel: true,
       });
     } else if (el.type === 'staticImage') {
-      // Deferred — loaded async after canvas is ready
       objects.push({
         type: 'image',
         _src: el.src,
         _isStaticImage: true,
         left: el.x * SCALE,
         top: el.y * SCALE,
-        scaleX: (el.w * SCALE) / 1,
-        scaleY: (el.h * SCALE) / 1,
+        scaleX: 0, // placeholder — recalculated on load
+        scaleY: 0,
         _targetW: el.w * SCALE,
         _targetH: el.h * SCALE,
         originX: 'center',
@@ -666,8 +665,8 @@ function loadSlide(idx) {
           const fitScale = Math.min(tw / img.width, th / img.height);
           img.set({
             left: d.left, top: d.top,
-            scaleX: d.scaleX > 0.001 ? d.scaleX : fitScale,
-            scaleY: d.scaleY > 0.001 ? d.scaleY : fitScale,
+            scaleX: (d.scaleX && d.scaleX > 0.001 && d.scaleX < 100) ? d.scaleX : fitScale,
+            scaleY: (d.scaleY && d.scaleY > 0.001 && d.scaleY < 100) ? d.scaleY : fitScale,
             opacity: d.opacity != null ? d.opacity : 1,
             originX: d.originX || 'center', originY: d.originY || 'center',
             selectable: true, evented: true,
