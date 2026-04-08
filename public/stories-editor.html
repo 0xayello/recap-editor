@@ -6,6 +6,7 @@
 <title>Bom Digma · Stories Editor (Fabric.js)</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 :root {
@@ -28,6 +29,10 @@ body { background:var(--bg); color:var(--text); font-family:'Space Grotesk',sans
 .expbtn:hover { filter:brightness(1.1); }
 .expall { background:rgba(247,148,29,0.15); color:var(--accent); font-weight:600; font-size:12px; padding:6px 14px; border-radius:7px; border:1px solid rgba(247,148,29,0.3); cursor:pointer; font-family:'Space Grotesk',sans-serif; white-space:nowrap; }
 .expall:hover { background:rgba(247,148,29,0.25); }
+.edition-select { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text); font-size:11px; padding:5px 10px; border-radius:6px; cursor:pointer; font-family:'Space Grotesk',sans-serif; outline:none; max-width:320px; transition:.15s; }
+.edition-select:hover { background:rgba(255,255,255,0.12); }
+.edition-select:focus { border-color:var(--accent); }
+.edition-select option { background:var(--panel); color:var(--text); }
 
 /* WORKSPACE */
 .ws { display:flex; flex:1; overflow:hidden; }
@@ -83,8 +88,10 @@ input[type=color].cpick { width:32px; height:26px; border:1px solid var(--border
   <div class="tlogo">☀️ Stories Editor</div>
   <div class="tdiv"></div>
   <div class="snav" id="snav"></div>
+  <div class="tdiv"></div>
+  <select class="edition-select" id="editionSelect"></select>
   <div class="topactions">
-    <button class="expall" onclick="exportAll()">⬇ Exportar Todos</button>
+    <button class="expall" onclick="exportAll()">⬇ Exportar PDF</button>
     <button class="expbtn" onclick="exportCurrent()">⬇ Exportar Slide</button>
   </div>
 </div>
@@ -216,6 +223,13 @@ input[type=color].cpick { width:32px; height:26px; border:1px solid var(--border
         <div class="sw slidebgsw" style="background:#FFFFFF" data-color="#FFFFFF"></div>
         <div class="sw slidebgsw" style="background:#F7941D" data-color="#F7941D"></div>
       </div>
+      <span class="slbl" style="margin-top:12px">Imagem de Fundo</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <div class="bgimg-thumb" onclick="setBgImage('/bg_deusa_light.png')" style="width:54px;height:54px;border-radius:8px;cursor:pointer;background:url(/bg_deusa_light.png) center/cover;border:2px solid transparent;transition:.12s" title="Deusa Clara"></div>
+        <div class="bgimg-thumb" onclick="setBgImage('/bg_deusa_saturated.png')" style="width:54px;height:54px;border-radius:8px;cursor:pointer;background:url(/bg_deusa_saturated.png) center/cover;border:2px solid transparent;transition:.12s" title="Deusa Saturada"></div>
+        <div class="bgimg-thumb" onclick="setBgImage('/bg_louros.png')" style="width:54px;height:54px;border-radius:8px;cursor:pointer;background:url(/bg_louros.png) center/cover;border:2px solid transparent;transition:.12s" title="Louros"></div>
+        <div class="bgimg-thumb" onclick="removeBgImage()" style="width:54px;height:54px;border-radius:8px;cursor:pointer;background:#000;border:2px solid #333;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;transition:.12s" title="Sem imagem">✕</div>
+      </div>
     </div>
     <!-- ADD ELEMENTS -->
     <div class="sec">
@@ -230,6 +244,18 @@ input[type=color].cpick { width:32px; height:26px; border:1px solid var(--border
       <button class="addbtn" onclick="addDivider()">+ Linha Divisória</button>
       <button class="addbtn" onclick="addBox('#F7941D',0.12)">+ Box Laranja</button>
       <button class="addbtn" onclick="addBox('#FFFFFF',0.06)">+ Box Branco</button>
+      <input type="file" id="imgUpload" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+      <button class="addbtn" onclick="document.getElementById('imgUpload').click()" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#e0e0e0">📷 Upload Imagem</button>
+    </div>
+    <!-- LAYERS -->
+    <div class="sec" id="secLayers">
+      <span class="slbl">Camadas</span>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="tbtn" onclick="moveLayer('front')" style="font-size:11px">⬆ Topo</button>
+        <button class="tbtn" onclick="moveLayer('up')" style="font-size:11px">↑ Subir</button>
+        <button class="tbtn" onclick="moveLayer('down')" style="font-size:11px">↓ Descer</button>
+        <button class="tbtn" onclick="moveLayer('back')" style="font-size:11px">⬇ Fundo</button>
+      </div>
     </div>
   </div>
 
@@ -257,114 +283,179 @@ const SCALE = 390 / W;
 const DW = Math.round(W * SCALE), DH = Math.round(H * SCALE);
 const F = 'Space Grotesk'; // primary font
 
-// ─── SLIDE DATA ───
-// Design rules:
-// - All text uses Space Grotesk
-// - Text centered within its block (textAlign: 'center')
-// - No bgColor on text elements — clean, floating text
-// - Image placeholders (dashed rects) where visuals go
-const SLIDES_DATA = [
+// ─── EDITIONS ARCHIVE ───
+const EDITIONS = [
+  {
+    id: 'drift-2026-04-08',
+    label: 'Hack da Drift — US$285M em 12 min',
+    date: '08/04/2026',
+    slides: [
   { // Slide 1 — Hook + Contexto
     name: '1 · Hook',
     bg: '#000000',
     elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'🇰🇵 US$285 MILHÕES\nEM 12 MINUTOS', x:40, y:330, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
-      { type:'text', text:'Hackers norte-coreanos passaram 6 meses\nfingindo ser uma firma de trading.\nForam em conferências, apertaram mãos,\ndepositaram mais de US$1 milhão — e drenaram\na maior DEX de perpétuos da Solana.', x:40, y:560, w:1000, font:F, size:30, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'rect', x:360, y:870, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'A operação contra a Drift é o ataque mais\nsofisticado que o mercado cripto já viu.\nE a gente destrincha tudo na Bom Digma de hoje.', x:40, y:920, w:1000, font:F, size:30, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
+      { type:'text', text:'🎯 U$23 MILHÕES DEPENDIAM\nDE UMA PALAVRA', x:40, y:310, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
+      { type:'text', text:'Apostadores da Polymarket ameaçaram um jornalista\npra tentar mudar sua matéria e ganhar milhões.', x:40, y:530, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:650, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'placeholder', x:80, y:700, w:920, h:460, label:'IMAGEM\nImagem da edição' },
+      { type:'text', text:'Emanuel Fabian, correspondente do Times of Israel,\npublicou que um míssil iraniano atingiu solo israelense.\nIsso definia o resultado de um mercado de U$23M.', x:40, y:1220, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'Quem apostou "Não" precisava que ele\nmudasse uma única palavra na matéria.', x:40, y:1430, w:1000, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
       { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
-      { type:'text', text:'DESLIZA PRA ENTENDER →', x:80, y:1735, w:920, font:F, size:22, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
-  { // Slide 2 — A Firma que Nunca Existiu
-    name: '2 · Firma',
+  { // Slide 2 — As Ameaças
+    name: '2 · Ameaças',
     bg: '#000000',
     elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'🎭 A FIRMA QUE\nNUNCA EXISTIU', x:40, y:330, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
-      { type:'text', text:'Em setembro de 2025, um grupo apareceu\nnuma conferência cripto se apresentando\ncomo firma de quant trading. Participaram\nde sessões de trabalho e apareceram\npresencialmente em 3 conferências,\nem múltiplos países.', x:40, y:560, w:1000, font:F, size:30, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'rect', x:360, y:920, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'Depositaram mais de US$1 milhão num vault\nde gestão ativa na Drift. Tudo pra construir\nconfiança. A firma nunca existiu — era uma\noperação de inteligência bancada\npela Coreia do Norte.', x:40, y:980, w:1000, font:F, size:30, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'😡 AS AMEAÇAS', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'Primeiro vieram e-mails educados pedindo\n"correções" na matéria. Fabian checou com fontes\nmilitares e confirmou: a informação estava certa.', x:40, y:520, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Aí escalou: prints fabricados, ligação de\nadvogada falsa, e mais de 100 mensagens\nem uma única noite.', x:40, y:800, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'"Você tem 90 minutos pra atualizar a mentira.\nVamos investir U$900 mil pra acabar com você.\nSabemos exatamente onde você mora."', x:40, y:1060, w:1000, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'text', text:'Fabian não mudou nada. As Forças de Defesa\nde Israel depois confirmaram sua versão.', x:40, y:1340, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.4 },
       { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
-      { type:'text', text:'DESLIZA →', x:80, y:1735, w:920, font:F, size:22, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
-  { // Slide 3 — O Repositório Envenenado
-    name: '3 · Código',
+  { // Slide 3 — Insider Trading
+    name: '3 · Insider',
     bg: '#000000',
     elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'💻 O REPOSITÓRIO\nENVENENADO', x:40, y:330, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
-      { type:'text', text:'Sob pretexto de construir um frontend\njunto com a equipe da Drift, compartilharam\num repositório de código. Dentro dele,\num arquivo do VS Code executava código\nmalicioso automaticamente — sem avisos\nnem permissões.', x:40, y:560, w:1000, font:F, size:30, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'rect', x:360, y:920, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'Também convenceram um contribuidor a baixar\num app falso via Apple TestFlight. No dia do\nataque, apagaram todo o histórico do Telegram\ne removeram o malware dos dispositivos\nao mesmo tempo.', x:40, y:980, w:1000, font:F, size:30, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'text', text:'🕵️ INSIDER TRADING\nNA POLYMARKET', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'Horas antes dos EUA e Israel atacarem o Irã,\num trader chamado "Magamyman" fez apostas\nque renderam U$553 mil em um único dia.', x:40, y:530, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:760, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Acertou 93% das apostas acima de U$10 mil\nsobre o Irã. Acumulou quase U$967 mil no total.', x:40, y:830, w:1000, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'text', text:'Duas pessoas foram indiciadas em Israel por usar\ninformação classificada militar pra apostar.\nUma delas era reservista.', x:40, y:1060, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'Polymarket e Kalshi processaram quase U$20 bilhões\nem volume só em fevereiro de 2026.', x:40, y:1340, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.4 },
       { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
-      { type:'text', text:'DESLIZA →', x:80, y:1735, w:920, font:F, size:22, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
-  { // Slide 4 — A Multisig Sem Trava
-    name: '4 · Multisig',
+  { // Slide 4 — A Lição
+    name: '4 · Lição',
     bg: '#000000',
     elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'🔑 12 MINUTOS PRA\nDRENAR TUDO', x:40, y:330, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
-      { type:'text', text:'A Drift operava uma multisig 2-de-5\nvia Squads Protocol. Quatro dias antes do\nataque, migraram pra uma configuração\ncom timelock zero — sem período de espera\nentre assinatura e execução.', x:40, y:560, w:1000, font:F, size:30, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'rect', x:360, y:890, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'Os atacantes já tinham comprometido\n2 dos 5 signatários. As transações foram\npré-assinadas e ficaram dormentes por mais\nde uma semana. No dia 1º de abril,\n31 transações — e em 12 minutos,\nUS$285 milhões drenados.', x:40, y:940, w:1000, font:F, size:30, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'text', text:'🧠 DINHEIRO PRODUZ\nVERDADE?', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'Mercados de previsão vendem a ideia de que\nincentivos financeiros alinham informação aos fatos.\nA Polymarket previu a eleição de Trump melhor que pesquisas.', x:40, y:530, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:800, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Mas o caso Fabian mostra o reverso:\nquando o dinheiro é grande demais,\no incentivo não é encontrar a verdade.\nÉ fabricá-la.', x:40, y:880, w:1000, font:F, size:38, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
+      { type:'text', text:'Ameaças, prints falsos, suborno a colegas.\nTudo pra mudar uma palavra numa matéria\ne ganhar U$23 milhões.', x:40, y:1200, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
-      { type:'text', text:'DESLIZA →', x:80, y:1735, w:920, font:F, size:22, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
     ]
   },
-  { // Slide 5 — O Dinheiro Sumiu
-    name: '5 · Circle',
+  { // Slide 5 — CTA
+    name: '5 · CTA',
     bg: '#000000',
     elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'💰 US$232M EM USDC', x:40, y:330, w:1000, font:F, size:56, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
-      { type:'text', text:'E A CIRCLE NÃO FEZ NADA', x:40, y:440, w:1000, font:F, size:44, weight:700, color:'#E53935', align:'center', lineH:1.15 },
-      { type:'text', text:'~US$232 milhões em USDC foram trocados\nvia Jupiter e enviados da Solana para\nEthereum pelo CCTP da Circle.\nForam mais de 100 transações ao longo de\n6 horas consecutivas, durante horário\ncomercial nos EUA. A Circle não congelou nada.', x:40, y:550, w:1000, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'rect', x:360, y:900, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'Parte virou ~129.000 ETH em 4 carteiras.\nParte foi roteada via Tornado Cash,\nHyperliquid e Wormhole. A Drift mandou\nmensagens on-chain: "Estamos prontos\npra conversar." Nenhuma resposta.', x:40, y:950, w:1000, font:F, size:28, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'📩 QUER RECEBER MAIS\nEDIÇÕES COMO ESSA?', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'Se inscreva de graça na Bom Digma.\nA newsletter cripto que você recebe\ntodos os dias no seu e-mail e lê em 5 minutos.', x:140, y:540, w:800, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:740, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'placeholder', x:80, y:810, w:920, h:460, label:'IMAGEM\nCard Substack Bom Digma' },
       { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
-      { type:'text', text:'DESLIZA →', x:80, y:1735, w:920, font:F, size:22, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
-    ]
-  },
-  { // Slide 6 — A Lição
-    name: '6 · Lição',
-    bg: '#000000',
-    elements: [
-      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
-      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'🧠 O QUE ISSO MUDA\nPRA TODO MUNDO', x:40, y:330, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
-      { type:'text', text:'O SEAL 911 atribuiu o ataque ao UNC4736 —\nmesmo grupo do hack da Radiant Capital\nem 2024. Hackers norte-coreanos já\nacumularam mais de US$7 bilhões em\ncripto roubado desde 2017.', x:40, y:560, w:1000, font:F, size:30, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
-      { type:'rect', x:360, y:870, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'Os smart contracts da Drift passaram por\nauditorias da Trail of Bits e ClawSecure.\nO ataque não foi por código ruim —\nfoi por controle das chaves.', x:40, y:920, w:1000, font:F, size:30, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
-      { type:'text', text:'Taylor Monahan: "A profundidade da operação\nme faz pensar que eles já têm múltiplos\noutros times na mira."', x:40, y:1200, w:1000, font:F, size:26, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.4 },
-      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
-      { type:'text', text:'DESLIZA →', x:80, y:1735, w:920, font:F, size:22, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
-    ]
-  },
-  { // Slide 7 — CTA
-    name: '7 · CTA',
-    bg: '#000000',
-    elements: [
-      { type:'text', text:'☀️', x:80, y:280, w:920, font:F, size:80, weight:400, color:'#FFFFFF', align:'center', lineH:1.0 },
-      { type:'text', text:'BOM DIGMA', x:80, y:460, w:920, font:F, size:72, weight:700, color:'#F7941D', align:'center', lineH:1.0 },
-      { type:'text', text:'Quer receber mais edições como essa?\nSe inscreva de graça na Bom Digma.', x:80, y:600, w:920, font:F, size:30, weight:400, color:'rgba(255,255,255,0.65)', align:'center', lineH:1.5 },
-      { type:'text', text:'A newsletter cripto que você recebe\ntodos os dias e lê em 5 minutos.', x:80, y:740, w:920, font:F, size:26, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.5 },
-      { type:'rect', x:340, y:880, w:400, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      // Substack card placeholder
-      { type:'placeholder', x:140, y:930, w:800, h:400, label:'IMAGEM\nCard Substack — Eles Foram nas Conferências,\nApertaram Mãos e Roubaram US$285 Milhões' },
-      { type:'text', text:'REAGE ESSE STORIES PARA RECEBER\nO LINK NA SUA DM 🔗', x:80, y:1440, w:920, font:F, size:28, weight:600, color:'#F7941D', align:'center', lineH:1.4 },
+      { type:'text', text:'Reage esse stories para receber\no link na sua DM.', x:80, y:1760, w:920, font:F, size:28, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
     ]
   }
-];
+  ] // end slides — Drift
+  },
+  {
+    id: 'polymarket-2026-04-02',
+    label: 'Polymarket — U$23M dependiam de uma palavra',
+    date: '02/04/2026',
+    slides: [
+  { // Slide 1 — Hook + Contexto
+    name: '1 · Hook',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'🎯 U$23 MILHÕES DEPENDIAM\nDE UMA PALAVRA', x:40, y:310, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
+      { type:'text', text:'Apostadores da Polymarket ameaçaram um jornalista\npra tentar mudar sua matéria e ganhar milhões.', x:40, y:530, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:650, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'placeholder', x:80, y:700, w:920, h:460, label:'IMAGEM\nImagem da edição' },
+      { type:'text', text:'Emanuel Fabian, correspondente do Times of Israel,\npublicou que um míssil iraniano atingiu solo israelense.\nIsso definia o resultado de um mercado de U$23M.', x:40, y:1220, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'Quem apostou "Não" precisava que ele\nmudasse uma única palavra na matéria.', x:40, y:1430, w:1000, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 2 — As Ameaças
+    name: '2 · Ameaças',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'😡 AS AMEAÇAS', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'Primeiro vieram e-mails educados pedindo\n"correções" na matéria. Fabian checou com fontes\nmilitares e confirmou: a informação estava certa.', x:40, y:520, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Aí escalou: prints fabricados, ligação de\nadvogada falsa, e mais de 100 mensagens\nem uma única noite.', x:40, y:800, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'"Você tem 90 minutos pra atualizar a mentira.\nVamos investir U$900 mil pra acabar com você.\nSabemos exatamente onde você mora."', x:40, y:1060, w:1000, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'text', text:'Fabian não mudou nada. As Forças de Defesa\nde Israel depois confirmaram sua versão.', x:40, y:1340, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 3 — Insider Trading
+    name: '3 · Insider',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'🕵️ INSIDER TRADING\nNA POLYMARKET', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'Horas antes dos EUA e Israel atacarem o Irã,\num trader chamado "Magamyman" fez apostas\nque renderam U$553 mil em um único dia.', x:40, y:530, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:760, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Acertou 93% das apostas acima de U$10 mil\nsobre o Irã. Acumulou quase U$967 mil no total.', x:40, y:830, w:1000, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'text', text:'Duas pessoas foram indiciadas em Israel por usar\ninformação classificada militar pra apostar.\nUma delas era reservista.', x:40, y:1060, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'Polymarket e Kalshi processaram quase U$20 bilhões\nem volume só em fevereiro de 2026.', x:40, y:1340, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 4 — A Lição
+    name: '4 · Lição',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'🧠 DINHEIRO PRODUZ\nVERDADE?', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'Mercados de previsão vendem a ideia de que\nincentivos financeiros alinham informação aos fatos.\nA Polymarket previu a eleição de Trump melhor que pesquisas.', x:40, y:530, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:800, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Mas o caso Fabian mostra o reverso:\nquando o dinheiro é grande demais,\no incentivo não é encontrar a verdade.\nÉ fabricá-la.', x:40, y:880, w:1000, font:F, size:38, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
+      { type:'text', text:'Ameaças, prints falsos, suborno a colegas.\nTudo pra mudar uma palavra numa matéria\ne ganhar U$23 milhões.', x:40, y:1200, w:1000, font:F, size:38, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 5 — CTA
+    name: '5 · CTA',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'📩 QUER RECEBER MAIS\nEDIÇÕES COMO ESSA?', x:80, y:330, w:920, font:F, size:68, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'Se inscreva de graça na Bom Digma.\nA newsletter cripto que você recebe\ntodos os dias no seu e-mail e lê em 5 minutos.', x:140, y:540, w:800, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:740, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'placeholder', x:80, y:810, w:920, h:460, label:'IMAGEM\nCard Substack Bom Digma' },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
+      { type:'text', text:'Reage esse stories para receber\no link na sua DM.', x:80, y:1760, w:920, font:F, size:28, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
+    ]
+  }
+  ] // end slides — Polymarket
+  }
+]; // end EDITIONS
+
+let SLIDES_DATA = EDITIONS[0].slides;
 
 // ─── STATE ───
 let currentSlide = 0;
@@ -393,6 +484,16 @@ window.addEventListener('load', () => {
     padding: 4,
   });
 
+  // Populate edition dropdown
+  const edSel = document.getElementById('editionSelect');
+  EDITIONS.forEach((ed, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${ed.date} — ${ed.label}`;
+    edSel.appendChild(opt);
+  });
+  edSel.addEventListener('change', () => switchEdition(parseInt(edSel.value)));
+
   SLIDES_DATA.forEach((sd) => {
     const json = buildSlideJSON(sd);
     slidesState.push(json);
@@ -403,7 +504,98 @@ window.addEventListener('load', () => {
   loadSlide(0);
   setupEvents();
   setupProps();
+
+  // Apply Louros background by default on all slides
+  setTimeout(() => {
+    _applyBgToCanvas('/bg_louros.png');
+    applyPalette('louros');
+    saveCurrentSlide();
+    // Remap all other slides to louros palette
+    const lourosP = PALETTES.louros;
+    for (let i = 0; i < slidesState.length; i++) {
+      if (i === currentSlide) continue;
+      const state = slidesState[i];
+      state.objects = state.objects.filter(o => !o._isBgImage);
+      state.objects.unshift({
+        type: 'image', _src: '/bg_louros.png', _isBgImage: true, _isUploadedImage: false,
+        left: DW / 2, top: DH / 2, scaleX: 0, scaleY: 0,
+        originX: 'center', originY: 'center', opacity: 1,
+        selectable: false, evented: false,
+      });
+      state.objects.forEach(o => {
+        if (o._isBgImage) return;
+        if (o.type === 'textbox' && o._isPlaceholderLabel) {
+          o.fill = 'rgba(0,0,0,0.3)';
+        } else if (o.type === 'textbox') {
+          const role = classifyColor(o.fill);
+          o.fill = lourosP[role] || lourosP.body;
+        }
+        if (o.type === 'rect' && o._isPlaceholder) {
+          o.stroke = 'rgba(0,0,0,0.35)';
+          o.fill = 'rgba(0,0,0,0.06)';
+        } else if (o.type === 'rect' && !o._isBgImage) {
+          const role = classifyColor(o.fill);
+          o.fill = lourosP[role] || lourosP.divider;
+        }
+      });
+    }
+    // Highlight Louros thumbnail
+    document.querySelectorAll('.bgimg-thumb').forEach(t => {
+      t.style.borderColor = t.title === 'Louros' ? '#F7941D' : 'transparent';
+    });
+  }, 100);
 });
+
+// ─── EDITION SWITCHING ───
+function switchEdition(idx) {
+  saveCurrentSlide();
+  SLIDES_DATA = EDITIONS[idx].slides;
+  slidesState = [];
+  SLIDES_DATA.forEach((sd) => {
+    slidesState.push(buildSlideJSON(sd));
+  });
+  currentSlide = 0;
+  buildNav();
+  buildMinimap();
+  loadSlide(0);
+  // Re-apply Louros background
+  setTimeout(() => {
+    _applyBgToCanvas('/bg_louros.png');
+    applyPalette('louros');
+    saveCurrentSlide();
+    const lourosP = PALETTES.louros;
+    for (let i = 0; i < slidesState.length; i++) {
+      if (i === currentSlide) continue;
+      const state = slidesState[i];
+      state.objects = state.objects.filter(o => !o._isBgImage);
+      state.objects.unshift({
+        type: 'image', _src: '/bg_louros.png', _isBgImage: true, _isUploadedImage: false,
+        left: DW / 2, top: DH / 2, scaleX: 0, scaleY: 0,
+        originX: 'center', originY: 'center', opacity: 1,
+        selectable: false, evented: false,
+      });
+      state.objects.forEach(o => {
+        if (o._isBgImage) return;
+        if (o.type === 'textbox' && o._isPlaceholderLabel) {
+          o.fill = 'rgba(0,0,0,0.3)';
+        } else if (o.type === 'textbox') {
+          const role = classifyColor(o.fill);
+          o.fill = lourosP[role] || lourosP.body;
+        }
+        if (o.type === 'rect' && o._isPlaceholder) {
+          o.stroke = 'rgba(0,0,0,0.35)';
+          o.fill = 'rgba(0,0,0,0.06)';
+        } else if (o.type === 'rect' && !o._isBgImage) {
+          const role = classifyColor(o.fill);
+          o.fill = lourosP[role] || lourosP.divider;
+        }
+      });
+    }
+    document.querySelectorAll('.bgimg-thumb').forEach(t => {
+      t.style.borderColor = t.title === 'Louros' ? '#F7941D' : 'transparent';
+    });
+  }, 100);
+}
 
 function buildSlideJSON(sd) {
   const objects = [];
@@ -481,6 +673,22 @@ function buildSlideJSON(sd) {
         _rx: 0,
         _isPlaceholderLabel: true,
       });
+    } else if (el.type === 'staticImage') {
+      objects.push({
+        type: 'image',
+        _src: el.src,
+        _isStaticImage: true,
+        left: el.x * SCALE,
+        top: el.y * SCALE,
+        scaleX: 0, // placeholder — recalculated on load
+        scaleY: 0,
+        _targetW: el.w * SCALE,
+        _targetH: el.h * SCALE,
+        originX: 'center',
+        originY: 'center',
+        selectable: true,
+        evented: true,
+      });
     }
   });
   return { bg: sd.bg || '#000000', objects };
@@ -515,6 +723,16 @@ function saveCurrentSlide() {
         strokeDashArray: o.strokeDashArray,
         _isPlaceholder: o._isPlaceholder,
       });
+    }
+    if (o.type === 'image') {
+      base._src = o.getSrc();
+      base._isUploadedImage = o._isUploadedImage || false;
+      base._isBgImage = o._isBgImage || false;
+      base._isStaticImage = o._isStaticImage || false;
+      base._targetW = o._targetW;
+      base._targetH = o._targetH;
+      base.originX = o.originX; base.originY = o.originY;
+      base.selectable = o.selectable; base.evented = o.evented;
     }
     return base;
   });
@@ -565,6 +783,49 @@ function loadSlide(idx) {
         hasControls: d.hasControls !== false,
       });
       obj._isPlaceholder = d._isPlaceholder || false;
+    } else if (d.type === 'image' && d._src) {
+      const isBg = d._isBgImage || false;
+      fabric.Image.fromURL(d._src, function(img) {
+        if (isBg) {
+          // Always recalculate cover scale for bg images
+          const scale = Math.max(DW / img.width, DH / img.height);
+          img.set({
+            left: DW / 2, top: DH / 2,
+            originX: 'center', originY: 'center',
+            scaleX: scale, scaleY: scale,
+            opacity: 1, selectable: false, evented: false,
+            _isBgImage: true,
+          });
+          canvas.insertAt(img, 0);
+        } else if (d._isStaticImage) {
+          const tw = d._targetW || 200 * SCALE;
+          const th = d._targetH || 60 * SCALE;
+          const fitScale = Math.min(tw / img.width, th / img.height);
+          img.set({
+            left: d.left, top: d.top,
+            scaleX: (d.scaleX && d.scaleX > 0.001 && d.scaleX < 100) ? d.scaleX : fitScale,
+            scaleY: (d.scaleY && d.scaleY > 0.001 && d.scaleY < 100) ? d.scaleY : fitScale,
+            opacity: d.opacity != null ? d.opacity : 1,
+            originX: d.originX || 'center', originY: d.originY || 'center',
+            selectable: true, evented: true,
+            _isStaticImage: true,
+            _targetW: tw, _targetH: th,
+          });
+          canvas.add(img);
+        } else {
+          img.set({
+            left: d.left, top: d.top,
+            scaleX: d.scaleX || 1, scaleY: d.scaleY || 1,
+            opacity: d.opacity != null ? d.opacity : 1,
+            originX: d.originX || 'left', originY: d.originY || 'top',
+            selectable: true, evented: true,
+            _isUploadedImage: d._isUploadedImage || false,
+          });
+          canvas.add(img);
+        }
+        canvas.renderAll();
+      });
+      return;
     }
     if (obj) canvas.add(obj);
   });
@@ -931,6 +1192,304 @@ function addDivider() {
   canvas.renderAll();
 }
 
+function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    fabric.Image.fromURL(evt.target.result, function(img) {
+      // Scale image to fit within canvas width
+      const maxW = 920 * SCALE;
+      const scale = Math.min(maxW / img.width, (H * SCALE * 0.5) / img.height);
+      img.set({
+        left: ((W - 920) / 2) * SCALE,
+        top: 300 * SCALE,
+        scaleX: scale,
+        scaleY: scale,
+        _isUploadedImage: true,
+      });
+      canvas.add(img);
+      canvas.setActiveObject(img);
+      canvas.renderAll();
+    });
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+// ─── PALETTES PER BACKGROUND ───
+// Each palette maps semantic roles to colors, plus swatch options
+const PALETTES = {
+  dark: { // default black bg
+    name: 'Fundo Escuro',
+    title: '#FFFFFF',
+    accent: '#F7941D',
+    negative: '#E53935',
+    body: 'rgba(255,255,255,0.6)',
+    muted: 'rgba(255,255,255,0.4)',
+    divider: 'rgba(255,255,255,0.12)',
+    brand: '#F7941D',
+    swatches: ['#FFFFFF','#F7941D','#E53935','#000000','#1a1a1a','#888888'],
+  },
+  deusa_light: { // bg_deusa_light.png — light marble
+    name: 'Deusa Clara',
+    title: '#3E2215',
+    accent: '#8B4000',
+    negative: '#8B0000',
+    body: 'rgba(0,0,0,0.75)',
+    muted: 'rgba(0,0,0,0.5)',
+    divider: 'rgba(62,34,21,0.25)',
+    brand: '#8B4000',
+    swatches: ['#3E2215','#8B4000','#8B0000','#FFFFFF','#5C3A2A','#444444'],
+  },
+  deusa_saturated: { // bg_deusa_saturated.png — warm dark tones, high contrast
+    name: 'Deusa Saturada',
+    title: '#FFFFFF',
+    accent: '#FFB347',
+    negative: '#FF6B6B',
+    body: 'rgba(255,255,255,0.75)',
+    muted: 'rgba(255,255,255,0.45)',
+    divider: 'rgba(255,255,255,0.18)',
+    brand: '#FFB347',
+    swatches: ['#FFFFFF','#FFB347','#FF6B6B','#1a1a1a','#000000','#cccccc'],
+  },
+  louros: { // bg_louros.png — golden/beige
+    name: 'Louros',
+    title: '#3E2215',
+    accent: '#6B3A00',
+    negative: '#7B0000',
+    body: 'rgba(0,0,0,0.8)',
+    muted: 'rgba(0,0,0,0.55)',
+    divider: 'rgba(62,34,21,0.25)',
+    brand: '#6B3A00',
+    swatches: ['#3E2215','#6B3A00','#7B0000','#FFFFFF','#5C3A2A','#444444'],
+  },
+};
+
+let currentPalette = 'dark';
+
+function getBgKey(url) {
+  if (url.includes('deusa_light')) return 'deusa_light';
+  if (url.includes('deusa_saturated')) return 'deusa_saturated';
+  if (url.includes('louros')) return 'louros';
+  return 'dark';
+}
+
+function parseColorBrightness(c) {
+  // Returns 0-255 brightness estimate for any color string
+  if (!c) return 128;
+  if (c.startsWith('rgba')) {
+    const m = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (m) { const a = parseFloat(c.match(/,\s*([\d.]+)\s*\)/)?.[1] || 1); return (parseInt(m[1])*0.299+parseInt(m[2])*0.587+parseInt(m[3])*0.114) * a; }
+  }
+  if (c.startsWith('#')) {
+    const hex = c.length === 4 ? c[1]+c[1]+c[2]+c[2]+c[3]+c[3] : c.slice(1,7);
+    const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+    return r*0.299+g*0.587+b*0.114;
+  }
+  return 128;
+}
+
+function classifyColor(c) {
+  // Classify a color into a semantic role for remapping
+  if (!c) return 'muted';
+  const str = String(c).toLowerCase();
+  // Orange/accent family
+  if (str.includes('f7941d') || str.includes('ffb347') || str.includes('8b4000') || str.includes('6b3a00') || str.includes('b85a00')) return 'accent';
+  // Red/negative family
+  if (str.includes('e53935') || str.includes('ff6b6b') || str.includes('8b0000') || str.includes('7b0000') || str.includes('b71c1c') || str.includes('9b1b1b')) return 'negative';
+  const bri = parseColorBrightness(c);
+  // Check if it's an rgba with low opacity (muted/body text)
+  const alphaMatch = str.match(/rgba?\([^)]+,\s*([\d.]+)\s*\)/);
+  if (alphaMatch) {
+    const alpha = parseFloat(alphaMatch[1]);
+    if (alpha <= 0.3) return 'muted';
+    if (alpha <= 0.65) return 'body'; // was muted, now body range
+    if (alpha < 1) return 'body';
+  }
+  // Solid colors
+  if (bri > 200) return 'title'; // white or near-white
+  if (bri < 60) return 'title';  // black or near-black (title on light bg)
+  return 'body';
+}
+
+function applyPalette(newKey) {
+  const oldP = PALETTES[currentPalette];
+  const newP = PALETTES[newKey];
+  if (!oldP || !newP || newKey === currentPalette) { currentPalette = newKey; updateSwatchesUI(newP); return; }
+  const isLight = (newKey !== 'dark' && newKey !== 'deusa_saturated');
+
+  // Build exact map + fallback classification
+  const map = {};
+  ['title','accent','negative','body','muted','divider','brand'].forEach(role => {
+    map[oldP[role]] = newP[role];
+  });
+
+  canvas.getObjects().forEach(obj => {
+    if (obj._isBgImage) return;
+    if (obj.type === 'textbox') {
+      if (obj._isPlaceholderLabel) {
+        obj.set('fill', isLight ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.2)');
+      } else {
+        const exact = map[obj.fill];
+        if (exact) { obj.set('fill', exact); }
+        else {
+          const role = classifyColor(obj.fill);
+          obj.set('fill', newP[role] || newP.body);
+        }
+      }
+    }
+    if (obj.type === 'rect' && obj._isPlaceholder) {
+      obj.set({
+        stroke: isLight ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.15)',
+        fill: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.03)',
+      });
+    }
+    if (obj.type === 'rect' && !obj._isPlaceholder) {
+      const exact = map[obj.fill];
+      if (exact) { obj.set('fill', exact); }
+      else {
+        const role = classifyColor(obj.fill);
+        obj.set('fill', newP[role] || newP.divider);
+      }
+      if (obj.stroke) {
+        const ms = map[obj.stroke];
+        obj.set('stroke', ms || (isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.12)'));
+      }
+    }
+  });
+
+  currentPalette = newKey;
+  updateSwatchesUI(newP);
+  canvas.renderAll();
+}
+
+function updateSwatchesUI(p) {
+  // Update text color swatches
+  const swContainer = document.querySelector('.swatches:not(:has(.slidebgsw))');
+  if (swContainer) {
+    const swEls = swContainer.querySelectorAll('.sw');
+    p.swatches.forEach((c, i) => {
+      if (swEls[i]) {
+        swEls[i].dataset.color = c;
+        swEls[i].style.background = c;
+        if (c === '#000000' || c === '#1a1a1a') swEls[i].style.border = '1px solid #333';
+        else swEls[i].style.border = '';
+      }
+    });
+  }
+}
+
+let globalBgUrl = '/bg_louros.png'; // shared bg across all slides — louros by default
+
+function setBgImage(url) {
+  globalBgUrl = url;
+  // Apply to current slide
+  _applyBgToCanvas(url);
+  applyPalette(getBgKey(url));
+  // Save current, then apply bg + palette to all other slides
+  saveCurrentSlide();
+  const cur = currentSlide;
+  for (let i = 0; i < slidesState.length; i++) {
+    if (i === cur) continue;
+    // Inject bg image data into each saved slide
+    const state = slidesState[i];
+    // Remove any existing bg image from saved objects
+    state.objects = state.objects.filter(o => !o._isBgImage);
+    // Add bg image reference
+    state.objects.unshift({
+      type: 'image', _src: url, _isBgImage: true, _isUploadedImage: false,
+      left: DW / 2, top: DH / 2, scaleX: 0, scaleY: 0, // placeholder, recalculated on load
+      originX: 'center', originY: 'center', opacity: 1,
+      selectable: false, evented: false,
+    });
+    // Remap colors in saved text/rect objects
+    const paletteKey = getBgKey(url);
+    const isLight = (paletteKey !== 'dark' && paletteKey !== 'deusa_saturated');
+    const newP = PALETTES[paletteKey];
+    state.objects.forEach(o => {
+      if (o._isBgImage) return;
+      if (o.type === 'textbox' && o._isPlaceholderLabel) {
+        o.fill = isLight ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.2)';
+      } else if (o.type === 'textbox') {
+        const role = classifyColor(o.fill);
+        o.fill = newP[role] || newP.body;
+      }
+      if (o.type === 'rect' && o._isPlaceholder) {
+        o.stroke = isLight ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.15)';
+        o.fill = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.03)';
+      } else if (o.type === 'rect' && !o._isBgImage) {
+        const role = classifyColor(o.fill);
+        o.fill = newP[role] || newP.divider;
+      }
+    });
+  }
+  document.querySelectorAll('.bgimg-thumb').forEach(t => t.style.borderColor = 'transparent');
+  event.target.closest('.bgimg-thumb').style.borderColor = '#F7941D';
+}
+
+function _applyBgToCanvas(url) {
+  // Remove existing bg from canvas
+  const existing = canvas.getObjects().find(o => o._isBgImage);
+  if (existing) canvas.remove(existing);
+  if (!url) return;
+  fabric.Image.fromURL(url, function(img) {
+    const scale = Math.max(DW / img.width, DH / img.height);
+    img.set({
+      left: DW / 2, top: DH / 2,
+      originX: 'center', originY: 'center',
+      scaleX: scale, scaleY: scale,
+      selectable: false, evented: false,
+      _isBgImage: true,
+    });
+    canvas.insertAt(img, 0);
+    canvas.renderAll();
+  });
+}
+
+function removeBgImage() {
+  globalBgUrl = null;
+  const existing = canvas.getObjects().find(o => o._isBgImage);
+  if (existing) canvas.remove(existing);
+  applyPalette('dark');
+  canvas.renderAll();
+  // Remove bg from all saved slides too
+  saveCurrentSlide();
+  const cur = currentSlide;
+  const darkP = PALETTES.dark;
+  for (let i = 0; i < slidesState.length; i++) {
+    if (i === cur) continue;
+    const state = slidesState[i];
+    state.objects = state.objects.filter(o => !o._isBgImage);
+    state.objects.forEach(o => {
+      if (o.type === 'textbox' && o._isPlaceholderLabel) {
+        o.fill = 'rgba(255,255,255,0.2)';
+      } else if (o.type === 'textbox') {
+        const role = classifyColor(o.fill);
+        o.fill = darkP[role] || darkP.body;
+      }
+      if (o.type === 'rect' && o._isPlaceholder) {
+        o.stroke = 'rgba(255,255,255,0.15)';
+        o.fill = 'rgba(255,255,255,0.03)';
+      } else if (o.type === 'rect') {
+        const role = classifyColor(o.fill);
+        o.fill = darkP[role] || darkP.divider;
+      }
+    });
+  }
+  document.querySelectorAll('.bgimg-thumb').forEach(t => t.style.borderColor = t.title === 'Sem imagem' ? '#333' : 'transparent');
+}
+
+function moveLayer(dir) {
+  const obj = canvas.getActiveObject();
+  if (!obj) return;
+  if (dir === 'front') canvas.bringToFront(obj);
+  else if (dir === 'up') canvas.bringForward(obj);
+  else if (dir === 'down') canvas.sendBackwards(obj);
+  else if (dir === 'back') canvas.sendToBack(obj);
+  canvas.renderAll();
+}
+
 function deleteSelected() {
   const obj = canvas.getActiveObject();
   if (obj) { canvas.remove(obj); canvas.renderAll(); hideProps(); }
@@ -962,13 +1521,20 @@ function duplicateSelected() {
 }
 
 // ─── EXPORT ───
-function exportCurrent() {
+async function renderSlideToDataURL(slideIdx) {
+  // Save current, load target slide, wait for images
   saveCurrentSlide();
+  loadSlide(slideIdx);
+  await new Promise(r => setTimeout(r, 500)); // wait for async images to load
+
   const expCanvas = new fabric.StaticCanvas(null, { width: W, height: H, backgroundColor: canvas.backgroundColor });
   const scaleUp = W / DW;
   const objects = canvas.getObjects();
-  if (objects.length === 0) { doExport(expCanvas); return; }
-  objects.forEach(o => {
+
+  const imgPromises = [];
+  const orderedNonImg = [];
+
+  objects.forEach((o, idx) => {
     let c;
     if (o.type === 'textbox') {
       c = new fabric.Textbox(o.text, {
@@ -977,6 +1543,7 @@ function exportCurrent() {
         fontFamily: o.fontFamily, fontSize: o.fontSize * scaleUp,
         fontWeight: o.fontWeight, fill: o.fill, textAlign: o.textAlign,
         lineHeight: o.lineHeight, opacity: o.opacity,
+        scaleX: o.scaleX || 1, scaleY: o.scaleY || 1,
       });
       if (o._bgColor) {
         c._bgColor = o._bgColor; c._padding = o._padding; c._rx = o._rx;
@@ -992,6 +1559,7 @@ function exportCurrent() {
           ctx.fillStyle = bgCol; ctx.fill(); ctx.restore();
         };
       }
+      orderedNonImg.push({ obj: c, idx });
     } else if (o.type === 'rect') {
       c = new fabric.Rect({
         left: o.left * scaleUp, top: o.top * scaleUp,
@@ -1003,30 +1571,61 @@ function exportCurrent() {
         strokeWidth: (o.strokeWidth || 0) * scaleUp,
         strokeDashArray: o.strokeDashArray ? o.strokeDashArray.map(v => v * scaleUp) : null,
       });
+      orderedNonImg.push({ obj: c, idx });
+    } else if (o.type === 'image') {
+      imgPromises.push(new Promise(resolve => {
+        fabric.Image.fromURL(o.getSrc(), function(img) {
+          img.set({
+            left: o.left * scaleUp, top: o.top * scaleUp,
+            scaleX: (o.scaleX || 1) * scaleUp,
+            scaleY: (o.scaleY || 1) * scaleUp,
+            opacity: o.opacity != null ? o.opacity : 1,
+            originX: o.originX || 'left', originY: o.originY || 'top',
+          });
+          resolve({ obj: img, idx });
+        });
+      }));
     }
-    if (c) expCanvas.add(c);
   });
+
+  const imgResults = await Promise.all(imgPromises);
+  // Merge all objects and sort by original index to preserve layer order
+  const allObjects = [...orderedNonImg, ...imgResults].sort((a, b) => a.idx - b.idx);
+  allObjects.forEach(item => expCanvas.add(item.obj));
+
   expCanvas.renderAll();
-  doExport(expCanvas);
+  const dataURL = expCanvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 });
+  expCanvas.dispose();
+  return dataURL;
 }
 
-function doExport(expCanvas) {
-  const dataURL = expCanvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 });
+async function exportCurrent() {
+  const origSlide = currentSlide;
+  const dataURL = await renderSlideToDataURL(origSlide);
   const link = document.createElement('a');
-  link.download = `slide-${currentSlide + 1}-${SLIDES_DATA[currentSlide].name.split('·')[1]?.trim().toLowerCase() || 'slide'}.png`;
+  link.download = `slide-${origSlide + 1}-${SLIDES_DATA[origSlide].name.split('·')[1]?.trim().toLowerCase() || 'slide'}.png`;
   link.href = dataURL;
   link.click();
-  expCanvas.dispose();
+  loadSlide(origSlide);
 }
 
 async function exportAll() {
+  const origSlide = currentSlide;
+  const { jsPDF } = window.jspdf;
+  // PDF in portrait, mm units, custom page size matching 1080x1920 aspect ratio
+  const pdfW = 108; // mm
+  const pdfH = 192; // mm (keeps 9:16 ratio)
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [pdfW, pdfH] });
+
   for (let i = 0; i < SLIDES_DATA.length; i++) {
-    saveCurrentSlide();
-    loadSlide(i);
-    await new Promise(r => setTimeout(r, 300));
-    exportCurrent();
-    await new Promise(r => setTimeout(r, 200));
+    if (i > 0) pdf.addPage([pdfW, pdfH]);
+    const dataURL = await renderSlideToDataURL(i);
+    pdf.addImage(dataURL, 'PNG', 0, 0, pdfW, pdfH);
   }
+
+  pdf.save('bom-digma-stories.pdf');
+  // Restore original slide
+  loadSlide(origSlide);
 }
 </script>
 </body>
