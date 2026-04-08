@@ -88,7 +88,7 @@ input[type=color].cpick { width:32px; height:26px; border:1px solid var(--border
 <body>
 
 <div class="topbar">
-  <div class="tlogo">☀️ Stories Editor</div>
+  <div class="tlogo">☀️ Content Editor</div>
   <div class="tdiv"></div>
   <div class="snav" id="snav"></div>
   <div class="tdiv"></div>
@@ -277,15 +277,36 @@ input[type=color].cpick { width:32px; height:26px; border:1px solid var(--border
 <div class="statusbar">
   <span id="statusSlide">Slide 1/7</span>
   <span id="statusObj">Nenhum objeto selecionado</span>
-  <span style="margin-left:auto">Fabric.js · 1080×1920 · Bom Digma</span>
+  <span style="margin-left:auto" id="statusDims">Fabric.js · 1080×1920 · Bom Digma</span>
 </div>
 
 <script>
 // ─── CONFIG ───
-const W = 1080, H = 1920;
-const SCALE = 390 / W;
-const DW = Math.round(W * SCALE), DH = Math.round(H * SCALE);
+const FORMATS = {
+  stories:   { w: 1080, h: 1920, label: 'Stories 9:16' },
+  carousel:  { w: 1080, h: 1350, label: 'Carrossel 4:5' },
+};
+let W = 1080, H = 1920;
+let SCALE = 390 / W;
+let DW = Math.round(W * SCALE), DH = Math.round(H * SCALE);
 const F = 'Space Grotesk'; // primary font
+
+function setFormat(fmt) {
+  const f = FORMATS[fmt] || FORMATS.stories;
+  W = f.w; H = f.h;
+  SCALE = 390 / W;
+  DW = Math.round(W * SCALE);
+  DH = Math.round(H * SCALE);
+  if (canvas) {
+    canvas.setWidth(DW);
+    canvas.setHeight(DH);
+    canvas.renderAll();
+  }
+  const wrap = document.getElementById('canvasWrap');
+  if (wrap) { wrap.style.width = DW + 'px'; wrap.style.height = DH + 'px'; }
+  const dims = document.getElementById('statusDims');
+  if (dims) dims.textContent = `Fabric.js · ${W}×${H} · Bom Digma`;
+}
 
 // ─── EDITIONS ARCHIVE ───
 const EDITIONS = [
@@ -293,6 +314,7 @@ const EDITIONS = [
     id: 'drift-2026-04-08',
     label: 'Hack da Drift — US$285M em 12 min',
     date: '08/04/2026',
+    format: 'stories',
     slides: [
   { // Slide 1 — Hook
     name: '1 · Hook',
@@ -377,6 +399,7 @@ const EDITIONS = [
     id: 'polymarket-2026-04-02',
     label: 'Polymarket — U$23M dependiam de uma palavra',
     date: '02/04/2026',
+    format: 'stories',
     slides: [
   { // Slide 1 — Hook + Contexto
     name: '1 · Hook',
@@ -456,6 +479,139 @@ const EDITIONS = [
     ]
   }
   ] // end slides — Polymarket
+  },
+  {
+    id: 'malha-fina-2026-04',
+    label: '5 erros que colocam suas criptos na malha fina',
+    date: '08/04/2026',
+    format: 'carousel',
+    slides: [
+  { // Slide 1 — Cover/Hook
+    name: '1 · Capa',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:80, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:110, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'🧾 5 ERROS QUE COLOCAM\nSUAS CRIPTOS\nNA MALHA FINA', x:40, y:180, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'text', text:'Só no ano passado, mais de 1,2 milhão\nde declarações caíram na malha fina.\nSe você tem cripto, presta atenção.', x:40, y:500, w:1000, font:F, size:34, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:660, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Esses são os erros mais comuns\nque a Receita Federal encontra\nna declaração de quem investe em cripto.', x:40, y:700, w:1000, font:F, size:34, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'text', text:'Deslize pra ver cada um →', x:40, y:920, w:1000, font:F, size:34, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1120, w:400, h:137 },
+      { type:'text', text:'Salve esse post pra consultar depois', x:80, y:1180, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 2 — Erro 1
+    name: '2 · Erro 1',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:80, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:110, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'ERRO Nº 1', x:40, y:160, w:1000, font:F, size:32, weight:600, color:'#F7941D', align:'center', lineH:1.1 },
+      { type:'text', text:'DECLARAR VALOR DE MERCADO\nEM VEZ DE CUSTO DE AQUISIÇÃO', x:40, y:210, w:1000, font:F, size:52, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
+      { type:'rect', x:360, y:400, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'A Receita quer saber quanto você pagou,\nnão quanto vale hoje. Se comprou 1 BTC\na R$50 mil, declara R$50 mil.', x:40, y:440, w:1000, font:F, size:36, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.45 },
+      { type:'text', text:'Não importa se hoje vale R$500 mil.\nNa ficha de Bens e Direitos,\no que conta é o preço que você pagou.', x:40, y:660, w:1000, font:F, size:36, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.45 },
+      { type:'text', text:'Parece óbvio, mas é o erro\nmais comum entre investidores de cripto.', x:40, y:900, w:1000, font:F, size:36, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1120, w:400, h:137 },
+      { type:'text', text:'Salve esse post pra consultar depois', x:80, y:1180, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 3 — Erro 2
+    name: '3 · Erro 2',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:80, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:110, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'ERRO Nº 2', x:40, y:160, w:1000, font:F, size:32, weight:600, color:'#F7941D', align:'center', lineH:1.1 },
+      { type:'text', text:'JOGAR TODOS OS ATIVOS\nNA MESMA LINHA', x:40, y:210, w:1000, font:F, size:52, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
+      { type:'rect', x:360, y:380, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Bitcoin, Ethereum, stablecoin, altcoin —\ncada categoria tem um código próprio\nna declaração do imposto de renda.', x:40, y:420, w:1000, font:F, size:36, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.45 },
+      { type:'text', text:'Quem joga tudo no código 01\ncomo se fosse uma coisa só\ntá pedindo pra cair na malha fina.', x:40, y:640, w:1000, font:F, size:36, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.45 },
+      { type:'text', text:'A Receita espera ver\nós ativos separados por tipo.', x:40, y:880, w:1000, font:F, size:36, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1120, w:400, h:137 },
+      { type:'text', text:'Salve esse post pra consultar depois', x:80, y:1180, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 4 — Erro 3
+    name: '4 · Erro 3',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:80, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:110, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'ERRO Nº 3', x:40, y:160, w:1000, font:F, size:32, weight:600, color:'#F7941D', align:'center', lineH:1.1 },
+      { type:'text', text:'ESQUECER DE DECLARAR\nO LUCRO ISENTO', x:40, y:210, w:1000, font:F, size:52, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
+      { type:'rect', x:360, y:380, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Vendeu menos de R$35 mil no mês\nem corretora nacional e teve lucro?\nNão paga imposto — mas precisa declarar.', x:40, y:420, w:1000, font:F, size:36, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.45 },
+      { type:'text', text:'O ganho vai na ficha de Rendimentos\nIsentos e Não Tributáveis. Se não declarar,\na Receita não entende como seu patrimônio cresceu.', x:40, y:640, w:1000, font:F, size:36, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.45 },
+      { type:'text', text:'Isento não significa invisível.\nSe não aparece, acende a bandeira.', x:40, y:890, w:1000, font:F, size:36, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1120, w:400, h:137 },
+      { type:'text', text:'Salve esse post pra consultar depois', x:80, y:1180, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 5 — Erro 4
+    name: '5 · Erro 4',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:80, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:110, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'ERRO Nº 4', x:40, y:160, w:1000, font:F, size:32, weight:600, color:'#F7941D', align:'center', lineH:1.1 },
+      { type:'text', text:'MISTURAR AS REGRAS DE\nCORRETORA NACIONAL E GRINGA', x:40, y:210, w:1000, font:F, size:52, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
+      { type:'rect', x:360, y:400, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Corretora nacional: isenção até R$35 mil/mês,\napuração mensal. Corretora estrangeira\nou autocustódia: zero isenção, 15%, anual.', x:40, y:440, w:1000, font:F, size:36, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.45 },
+      { type:'text', text:'São dois mundos com regras diferentes.\nQuem aplica a regra de um no outro\ntá calculando errado o imposto.', x:40, y:670, w:1000, font:F, size:36, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.45 },
+      { type:'text', text:'Usar a isenção de R$35 mil pra vendas\nna Binance ou P2P é o caminho\nmais rápido pro alerta vermelho.', x:40, y:900, w:1000, font:F, size:36, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1120, w:400, h:137 },
+      { type:'text', text:'Salve esse post pra consultar depois', x:80, y:1180, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 6 — Erro 5
+    name: '6 · Erro 5',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:80, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:110, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'ERRO Nº 5', x:40, y:160, w:1000, font:F, size:32, weight:600, color:'#F7941D', align:'center', lineH:1.1 },
+      { type:'text', text:'IGNORAR AIRDROPS,\nSTAKING E FORKS', x:40, y:210, w:1000, font:F, size:52, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
+      { type:'rect', x:360, y:380, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Recebeu token de graça num airdrop?\nCusto de aquisição é zero, mas se passar\nde R$5 mil por categoria, precisa declarar.', x:40, y:420, w:1000, font:F, size:36, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.45 },
+      { type:'text', text:'Staking gerou rendimento? Declara.\nFork te deu moedas novas? Declara.\nNão importa a plataforma que você usa.', x:40, y:650, w:1000, font:F, size:36, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.45 },
+      { type:'text', text:'A obrigação é sua, não da corretora.\nNem do protocolo. Nem da exchange.', x:40, y:890, w:1000, font:F, size:36, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1120, w:400, h:137 },
+      { type:'text', text:'Salve esse post pra consultar depois', x:80, y:1180, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 7 — Takeaway
+    name: '7 · Resumo',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:80, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:110, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'🧠 A MAIORIA ERRA\nSEM QUERER', x:40, y:180, w:1000, font:F, size:56, weight:700, color:'#FFFFFF', align:'center', lineH:1.1 },
+      { type:'rect', x:360, y:370, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'A maioria das pessoas não comete\nesses erros de propósito.\nÉ falta de informação, não má-fé.', x:40, y:420, w:1000, font:F, size:36, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.45 },
+      { type:'text', text:'Mas pra Receita Federal,\no resultado é o mesmo:\ninconsistência na declaração.', x:40, y:650, w:1000, font:F, size:36, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.45 },
+      { type:'text', text:'A boa notícia é que agora\nvocê sabe o que evitar.', x:40, y:900, w:1000, font:F, size:38, weight:500, color:'#F7941D', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1120, w:400, h:137 },
+      { type:'text', text:'Salve esse post pra consultar depois', x:80, y:1180, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  },
+  { // Slide 8 — CTA
+    name: '8 · CTA',
+    bg: '#000000',
+    elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:80, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:110, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'📣 QUER FICAR 100% LEGAL\nE PAGAR O MÍNIMO\nDE IMPOSTO?', x:40, y:170, w:1000, font:F, size:52, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
+      { type:'rect', x:360, y:420, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Vamos fazer um aulão ao vivo com\num contador especializado em cripto.\nA chance de tirar todas as suas dúvidas.', x:40, y:470, w:1000, font:F, size:36, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.45 },
+      { type:'text', text:'Comenta IMPOSTO aqui embaixo\npra entrar no grupo do WhatsApp\ne ficar por dentro de tudo.', x:40, y:700, w:1000, font:F, size:38, weight:500, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'placeholder', x:80, y:900, w:920, h:160, label:'IMAGEM\nCard WhatsApp / Aulão' },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1120, w:400, h:137 },
+      { type:'text', text:'Nos vemos lá 🤝', x:80, y:1180, w:920, font:F, size:24, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+    ]
+  }
+  ] // end slides — Malha Fina
   }
 ]; // end EDITIONS
 
@@ -533,7 +689,8 @@ window.addEventListener('load', () => {
   EDITIONS.forEach((ed, i) => {
     const opt = document.createElement('option');
     opt.value = i;
-    opt.textContent = `${ed.date} — ${ed.label}`;
+    const fmt = FORMATS[ed.format || 'stories'];
+    opt.textContent = `[${fmt.label}] ${ed.date} — ${ed.label}`;
     edSel.appendChild(opt);
   });
   edSel.addEventListener('change', () => switchEdition(parseInt(edSel.value)));
@@ -593,12 +750,18 @@ window.addEventListener('load', () => {
 // ─── EDITION SWITCHING ───
 function switchEdition(idx) {
   saveCurrentSlide();
-  SLIDES_DATA = EDITIONS[idx].slides;
+  const ed = EDITIONS[idx];
+  // Switch canvas format if needed
+  setFormat(ed.format || 'stories');
+  SLIDES_DATA = ed.slides;
   slidesState = [];
   SLIDES_DATA.forEach((sd) => {
     slidesState.push(buildSlideJSON(sd));
   });
   currentSlide = 0;
+  undoStack = [];
+  const btn = document.getElementById('undoBtn');
+  if (btn) btn.disabled = true;
   buildNav();
   buildMinimap();
   loadSlide(0);
@@ -1677,9 +1840,9 @@ async function exportCurrent() {
 async function exportAll() {
   const origSlide = currentSlide;
   const { jsPDF } = window.jspdf;
-  // PDF in portrait, mm units, custom page size matching 1080x1920 aspect ratio
+  // PDF in portrait, mm units, custom page size matching current format
   const pdfW = 108; // mm
-  const pdfH = 192; // mm (keeps 9:16 ratio)
+  const pdfH = Math.round(pdfW * (H / W)); // dynamic based on format
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [pdfW, pdfH] });
 
   for (let i = 0; i < SLIDES_DATA.length; i++) {
