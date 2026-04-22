@@ -1704,8 +1704,8 @@ function parseColorBrightness(c) {
   // Returns 0-255 brightness estimate for any color string
   if (!c) return 128;
   if (c.startsWith('rgba')) {
-    const m = c.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);
-    if (m) { const a = parseFloat(c.match(/,\\s*([\\d.]+)\\s*\\)/)?.[1] || 1); return (parseInt(m[1])*0.299+parseInt(m[2])*0.587+parseInt(m[3])*0.114) * a; }
+    const m = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (m) { const a = parseFloat(c.match(/,\s*([\d.]+)\s*\)/)?.[1] || 1); return (parseInt(m[1])*0.299+parseInt(m[2])*0.587+parseInt(m[3])*0.114) * a; }
   }
   if (c.startsWith('#')) {
     const hex = c.length === 4 ? c[1]+c[1]+c[2]+c[2]+c[3]+c[3] : c.slice(1,7);
@@ -1725,7 +1725,7 @@ function classifyColor(c) {
   if (str.includes('e53935') || str.includes('ff6b6b') || str.includes('8b0000') || str.includes('7b0000') || str.includes('b71c1c') || str.includes('9b1b1b')) return 'negative';
   const bri = parseColorBrightness(c);
   // Check if it's an rgba with low opacity (muted/body text)
-  const alphaMatch = str.match(/rgba?\\([^)]+,\\s*([\\d.]+)\\s*\\)/);
+  const alphaMatch = str.match(/rgba?\([^)]+,\s*([\d.]+)\s*\)/);
   if (alphaMatch) {
     const alpha = parseFloat(alphaMatch[1]);
     if (alpha <= 0.3) return 'muted';
