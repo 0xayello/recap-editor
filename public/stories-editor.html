@@ -316,44 +316,56 @@ const EDITIONS = [
     date: '08/04/2026',
     format: 'stories',
     slides: [
-  { // Slide 1 — Prévia da edição
-    name: '1 · Prévia',
-    bg: '#000000',
-    elements: [
+  { name: '1 · Hook', bg: '#000000', elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'🇰🇵 US$285 MILHÕES\
-ROUBADOS EM 12 MINUTOS', x:40, y:310, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
-      { type:'text', text:'Hackers norte-coreanos passaram 6 meses\
-se infiltrando a Drift, a maior DEX\
-de perpétuos da Solana.', x:40, y:530, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
+      { type:'text', text:'🇰🇵 US$285 MILHÕES\nROUBADOS EM 12 MIN', x:40, y:310, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
+      { type:'text', text:'Hackers norte-coreanos se infiltraram\npor 6 meses na Drift — a maior DEX\nde perpétuos da Solana.', x:40, y:530, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
       { type:'rect', x:360, y:700, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'placeholder', x:80, y:750, w:920, h:620, label:'IMAGEM\
-Print da edição' },
+      { type:'placeholder', x:80, y:760, w:920, h:600, label:'IMAGEM\nPrint da edição' },
       { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
-      { type:'text', text:'Edição de 08/04/2026', x:80, y:1750, w:920, font:F, size:20, weight:500, color:'rgba(255,255,255,0.35)', align:'center', lineH:1.2 },
-    ]
-  },
-  { // Slide 2 — CTA
-    name: '2 · CTA',
-    bg: '#000000',
-    elements: [
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+  ]},
+  { name: '2 · Infiltração', bg: '#000000', elements: [
       { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
       { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
-      { type:'text', text:'QUER RECEBER AS NOSSAS\
-EDIÇÕES DE GRAÇA?', x:40, y:330, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
-      { type:'rect', x:360, y:560, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'text', text:'A Bom Digma é a newsletter cripto\
-diária da Paradigma.', x:40, y:630, w:1000, font:F, size:34, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
-      { type:'text', text:'Direto ao ponto. Todo dia no seu e-mail.\
-Leitura de 5 minutos.', x:40, y:800, w:1000, font:F, size:34, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.5 },
-      { type:'rect', x:360, y:960, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
-      { type:'placeholder', x:80, y:1020, w:920, h:350, label:'IMAGEM\
-Card Substack Bom Digma' },
-      { type:'text', text:'Comenta BOM DIGMA pra receber o link na DM', x:40, y:1480, w:1000, font:F, size:28, weight:600, color:'#F7941D', align:'center', lineH:1.3 },
+      { type:'text', text:'🕵️ 6 MESES\nDENTRO DA EMPRESA', x:40, y:310, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
+      { type:'text', text:'O Lazarus Group criou uma empresa falsa\ne contratou devs para trabalhar\ndiretamente na Drift.', x:40, y:530, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'Eles não roubaram nada no começo.\nSó observaram. Esperaram a hora certa.\nAprenderam como o sistema funcionava. 🎯', x:40, y:800, w:1000, font:F, size:36, weight:500, color:'#E53935', align:'center', lineH:1.4 },
       { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
-    ]
-  }
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+  ]},
+  { name: '3 · O Ataque', bg: '#000000', elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'⚡ 12 MINUTOS.\nUS$285 MILHÕES.', x:40, y:310, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
+      { type:'text', text:'Em 08/04/2026, eles ativaram o ataque.\nComprometerem o repositório de código\ne empurraram uma atualização maliciosa.', x:40, y:530, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'A Drift tinha um timelock de segurança.\nEles esperaram o tempo exato e drenaram\ntudo antes do protocolo reagir. 😱', x:40, y:800, w:1000, font:F, size:36, weight:600, color:'#E53935', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+  ]},
+  { name: '4 · Lição', bg: '#000000', elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'🧠 O QUE A DRIFT\nNÃO VIU VINDO', x:40, y:310, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
+      { type:'text', text:'O vetor não foi um bug de código.\nFoi engenharia social —\numa ameaça que nenhuma auditoria pega.', x:40, y:530, w:1000, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:730, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'text', text:'A Coreia do Norte já roubou mais de\nUS$3 bilhões em cripto usando\nexatamente essa técnica.', x:40, y:800, w:1000, font:F, size:36, weight:500, color:'rgba(255,255,255,0.4)', align:'center', lineH:1.4 },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
+      { type:'text', text:'Reaja esse stories para ler a edição', x:80, y:1735, w:920, font:F, size:20, weight:600, color:'#F7941D', align:'center', lineH:1.2 },
+  ]},
+  { name: '5 · CTA', bg: '#000000', elements: [
+      { type:'text', text:'BOM DIGMA', x:80, y:200, w:400, font:F, size:24, weight:600, color:'#F7941D', align:'left', lineH:1.1 },
+      { type:'rect', x:80, y:250, w:920, h:3, fill:'#F7941D', opacity:0.6, rx:2 },
+      { type:'text', text:'📩 QUER RECEBER MAIS\nEDIÇÕES COMO ESSA?', x:40, y:330, w:1000, font:F, size:64, weight:700, color:'#FFFFFF', align:'center', lineH:1.15 },
+      { type:'text', text:'Se inscreva de graça na Bom Digma.\nA newsletter cripto que você recebe\ntodos os dias no seu e-mail e lê em 5 minutos.', x:140, y:540, w:800, font:F, size:32, weight:400, color:'rgba(255,255,255,0.6)', align:'center', lineH:1.4 },
+      { type:'rect', x:360, y:740, w:360, h:2, fill:'rgba(255,255,255,0.12)', opacity:1, rx:1 },
+      { type:'placeholder', x:80, y:810, w:920, h:460, label:'IMAGEM\nCard Substack Bom Digma' },
+      { type:'staticImage', src:'/logo_bomdigma.png', x:540, y:1690, w:400, h:137 },
+      { type:'text', text:'Comenta BOM DIGMA pra receber o link na DM', x:40, y:1480, w:1000, font:F, size:28, weight:600, color:'#F7941D', align:'center', lineH:1.3 },
+  ]}
   ] // end slides — Drift
   },
   {
